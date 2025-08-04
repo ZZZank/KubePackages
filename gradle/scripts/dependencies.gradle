@@ -27,6 +27,10 @@ repositories {
 }
 
 dependencies {
+    modImplementation("curse.maven:kubejs-238086:5853326")
+    modImplementation("curse.maven:rhino-416294:6186971")
+    modImplementation("curse.maven:architectury-api-419699:5137938")
+
     // additional dependencies can be specified using loom's regular format
     // specifying a "mod" dependency (like modImplementation or modApi)
     // will cause loom to remap the file to your specified mappings
