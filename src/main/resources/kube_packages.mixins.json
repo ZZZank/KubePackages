@@ -1,18 +1,15 @@
 
 {
-  "package": "com.example.examplemod.mixin",
+  "package": "zank.mods.kube_packages.bridge.mixin",
   "required": true,
   "target": "@env(DEFAULT)",
   "minVersion": "0.8",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "MixinItemStack"
+    "MixinScriptManager"
   ],
   "server": [],
-  "client": [
-    "AccessTitleScreen",
-    "ExampleMixin"
-  ],
+  "client": [],
   "injectors": {
     "defaultRequire": 1
   }
