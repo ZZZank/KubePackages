@@ -1,5 +1,14 @@
 package zank.mods.kube_packages.impl.zip;
 
+import net.minecraft.SharedConstants;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.FilePackResources;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.PathPackResources;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.flag.FeatureFlags;
 import zank.mods.kube_packages.api.KubePackageUtils;
 import zank.mods.kube_packages.api.ScriptLoadContext;
 import zank.mods.kube_packages.api.meta.PackageMetaData;
@@ -15,6 +24,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.Consumer;
 import java.util.zip.ZipFile;
 
 public class ZipKubePackage extends KubePackageBase {
@@ -52,7 +62,29 @@ public class ZipKubePackage extends KubePackageBase {
     }
 
     @Override
+    public void getResource(PackType type, Consumer<Pack> packLoader) {
+        var pack = Pack.create(
+            this.id(),
+            Component.literal(toString()),
+            true,
+            name -> new FilePackResources(name, this.path.toFile(), false),
+            new Pack.Info(
+                Component.literal("Resource collected by " + toString()),
+                SharedConstants.getCurrentVersion().getPackVersion(PackType.SERVER_DATA),
+                SharedConstants.getCurrentVersion().getPackVersion(PackType.CLIENT_RESOURCES),
+                FeatureFlagSet.of(FeatureFlags.BUNDLE),
+                false
+            ),
+            type,
+            Pack.Position.BOTTOM,
+            true,
+            PackSource.DEFAULT
+        );
+        packLoader.accept(pack);
+    }
+
+    @Override
     public String toString() {
-        return "ZipContentPack[namespace=%s]".formatted(metaData.id());
+        return "ZipKubePackage[namespace=%s]".formatted(metaData.id());
     }
 }

@@ -1,5 +1,7 @@
 package zank.mods.kube_packages.impl.mod;
 
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.repository.Pack;
 import net.minecraftforge.forgespi.language.IModFileInfo;
 import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.KubePackageUtils;
@@ -15,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.Consumer;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
@@ -52,6 +55,11 @@ public class ModFileKubePackage extends KubePackageBase {
             KubePackages.LOGGER.error("Error when loading package from file", e);
         }
         return pack;
+    }
+
+    @Override
+    public void getResource(PackType type, Consumer<Pack> packLoader) {
+        // do nothing
     }
 
     @Override
