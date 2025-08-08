@@ -1,6 +1,7 @@
 package zank.mods.kube_packages.bridge;
 
 import net.minecraftforge.event.AddPackFindersEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import zank.mods.kube_packages.KubePackages;
 
@@ -10,7 +11,9 @@ import zank.mods.kube_packages.KubePackages;
 @Mod.EventBusSubscriber(modid = KubePackages.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ForgeModEventHandlers {
 
+    @SubscribeEvent
     public static void addPackRepo(AddPackFindersEvent event) {
-
+        var type = event.getPackType();
+        event.addRepositorySource(loader -> KubePackages.getPackages().forEach(p -> p.getResource(type, loader)));
     }
 }
