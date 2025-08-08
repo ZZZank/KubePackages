@@ -2,14 +2,10 @@ package zank.mods.kube_packages.impl.path;
 
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
-import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.repository.Pack;
-import net.minecraft.server.packs.repository.PackSource;
-import net.minecraft.world.flag.FeatureFlagSet;
-import net.minecraft.world.flag.FeatureFlags;
 import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.KubePackage;
 import zank.mods.kube_packages.api.KubePackageUtils;
@@ -19,6 +15,7 @@ import dev.latvian.mods.kubejs.KubeJS;
 import dev.latvian.mods.kubejs.script.ScriptPack;
 import dev.latvian.mods.kubejs.script.ScriptSource;
 import org.jetbrains.annotations.Nullable;
+import zank.mods.kube_packages.utils.AssetUtil;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -79,22 +76,12 @@ public class DirKubePackage implements KubePackage {
         if (!Files.exists(path) || !Files.isDirectory(path)) {
             return;
         }
-        var pack = Pack.create(
-            this.id(),
+        var pack = AssetUtil.packForPackage(
+            this,
             Component.literal(toString()),
-            true,
-            name -> new PathPackResources(name, this.base, false),
-            new Pack.Info(
-                Component.literal("Resource collected by " + toString()),
-                SharedConstants.getCurrentVersion().getPackVersion(PackType.SERVER_DATA),
-                SharedConstants.getCurrentVersion().getPackVersion(PackType.CLIENT_RESOURCES),
-                FeatureFlagSet.of(FeatureFlags.BUNDLE),
-                false
-            ),
+            Component.literal("Resource collected by " + toString()),
             type,
-            Pack.Position.BOTTOM,
-            true,
-            PackSource.DEFAULT
+            name -> new PathPackResources(name, this.base, false)
         );
         packLoader.accept(pack);
     }

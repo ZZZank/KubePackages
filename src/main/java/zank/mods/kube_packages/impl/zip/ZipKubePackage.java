@@ -1,14 +1,9 @@
 package zank.mods.kube_packages.impl.zip;
 
-import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.FilePackResources;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.repository.Pack;
-import net.minecraft.server.packs.repository.PackSource;
-import net.minecraft.world.flag.FeatureFlagSet;
-import net.minecraft.world.flag.FeatureFlags;
 import zank.mods.kube_packages.api.KubePackageUtils;
 import zank.mods.kube_packages.api.ScriptLoadContext;
 import zank.mods.kube_packages.api.meta.PackageMetaData;
@@ -17,12 +12,12 @@ import dev.latvian.mods.kubejs.script.ScriptFileInfo;
 import dev.latvian.mods.kubejs.script.ScriptPack;
 import dev.latvian.mods.kubejs.script.ScriptSource;
 import org.jetbrains.annotations.Nullable;
+import zank.mods.kube_packages.utils.AssetUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 import java.util.zip.ZipFile;
@@ -63,22 +58,12 @@ public class ZipKubePackage extends KubePackageBase {
 
     @Override
     public void getResource(PackType type, Consumer<Pack> packLoader) {
-        var pack = Pack.create(
-            this.id(),
+        var pack = AssetUtil.packForPackage(
+            this,
             Component.literal(toString()),
-            true,
-            name -> new FilePackResources(name, this.path.toFile(), false),
-            new Pack.Info(
-                Component.literal("Resource collected by " + toString()),
-                SharedConstants.getCurrentVersion().getPackVersion(PackType.SERVER_DATA),
-                SharedConstants.getCurrentVersion().getPackVersion(PackType.CLIENT_RESOURCES),
-                FeatureFlagSet.of(FeatureFlags.BUNDLE),
-                false
-            ),
+            Component.literal("Resource collected by " + toString()),
             type,
-            Pack.Position.BOTTOM,
-            true,
-            PackSource.DEFAULT
+            name -> new FilePackResources(name, this.path.toFile(), false)
         );
         packLoader.accept(pack);
     }
