@@ -3,7 +3,13 @@ package zank.mods.kube_packages.bridge;
 import dev.latvian.mods.kubejs.KubeJS;
 import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.script.BindingsEvent;
+import dev.latvian.mods.kubejs.script.ScriptType;
+import dev.latvian.mods.rhino.util.wrap.TypeWrappers;
 import net.minecraftforge.fml.ModList;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
+import org.apache.maven.artifact.versioning.VersionRange;
 import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.inject.SortablePackageHolder;
 import zank.mods.kube_packages.impl.dummy.DummyKubePackage;
@@ -20,6 +26,26 @@ import java.util.List;
 public class KubePackagesKJSPlugin extends KubeJSPlugin {
 
     @Override
+    public void registerTypeWrappers(ScriptType type, TypeWrappers typeWrappers) {
+        typeWrappers.registerSimple(
+            VersionRange.class,
+            from -> from instanceof CharSequence,
+            (from) -> {
+                try {
+                    return VersionRange.createFromVersionSpec(from.toString());
+                } catch (InvalidVersionSpecificationException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        );
+        typeWrappers.registerSimple(
+            ArtifactVersion.class,
+            from -> from instanceof CharSequence,
+            (from) -> new DefaultArtifactVersion(from.toString())
+        );
+    }
+
+    @Override
     public void registerBindings(BindingsEvent event) {
         event.add(
             "KubePackages",
@@ -33,11 +59,11 @@ public class KubePackagesKJSPlugin extends KubeJSPlugin {
     @Override
     public void init() {
         //path
-        zank.mods.kube_packages.KubePackages.registerProvider(new DirKubePackageProvider(KubePackagePaths.CUSTOM));
+        KubePackages.registerProvider(new DirKubePackageProvider(KubePackagePaths.CUSTOM));
         // zip
-        zank.mods.kube_packages.KubePackages.registerProvider(new ZipKubePackageProvider(KubePackagePaths.CUSTOM));
+        KubePackages.registerProvider(new ZipKubePackageProvider(KubePackagePaths.CUSTOM));
         //kubejs dummy, for sorting content packs
-        zank.mods.kube_packages.KubePackages.registerProvider(
+        KubePackages.registerProvider(
             new DummyKubePackageProvider(List.of(new DummyKubePackage(KubeJS.MOD_ID, cx -> null)))
         );
         // mod
@@ -46,7 +72,7 @@ public class KubePackagesKJSPlugin extends KubeJSPlugin {
             .stream()
             .filter(ModKubePackageProvider::validate)
             .map(ModKubePackageProvider::new)
-            .forEach(zank.mods.kube_packages.KubePackages::registerProvider);
+            .forEach(KubePackages::registerProvider);
     }
 
     @Override

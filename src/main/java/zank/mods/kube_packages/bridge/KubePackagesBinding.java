@@ -4,6 +4,9 @@ import com.google.common.collect.Maps;
 import zank.mods.kube_packages.api.KubePackage;
 import zank.mods.kube_packages.api.inject.SortablePackageHolder;
 import zank.mods.kube_packages.api.meta.PackageMetaData;
+import zank.mods.kube_packages.api.meta.dependency.DependencyBuilder;
+import zank.mods.kube_packages.api.meta.MetaDataBuilder;
+import zank.mods.kube_packages.api.meta.dependency.PackageDependency;
 import zank.mods.kube_packages.impl.dependency.SortableKubePackage;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.typings.Info;
@@ -37,14 +40,26 @@ public class KubePackagesBinding {
         return type;
     }
 
+    public MetaDataBuilder metaDataBuilder() {
+        return PackageMetaData.builder();
+    }
+
+    public PackageMetaData metaDataMinimal(String id) {
+        return PackageMetaData.minimal(id);
+    }
+
+    public DependencyBuilder dependencyBuilder() {
+        return PackageDependency.builder();
+    }
+
     @Info("""
-        @return `true` if a ContentPack with provided `id` is present, `false` otherwise""")
+        @return `true` if a KubePackage with provided `id` is present, `false` otherwise""")
     public boolean isLoaded(String id) {
         return pkgHolder.kpkg$sortablePacks().containsKey(id);
     }
 
     @Info("""
-        @return The metadata from ContentPack with provided `id`, or `null` if there's no such ContentPack""")
+        @return The metadata from KubePackage with provided `id`, or `null` if there's no such KubePackage""")
     public PackageMetaData getMetadata(String id) {
         var sortableContentPack = pkgHolder.kpkg$sortablePacks().get(id);
         return Optional.ofNullable(sortableContentPack)
@@ -54,8 +69,8 @@ public class KubePackagesBinding {
     }
 
     @Info("""
-        ContentPack id -> ContentPack metadata""")
-    public Map<String, PackageMetaData> getAllMetadata() {
+        KubePackage id -> KubePackage metadata""")
+    public Map<String, PackageMetaData> viewAllMetadata() {
         return Collections.unmodifiableMap(Maps.transformValues(
             pkgHolder.kpkg$sortablePacks(),
             s -> s.pack().getMetaData()
@@ -63,50 +78,50 @@ public class KubePackagesBinding {
     }
 
     @Info("""
-        Put value into ContentPack shared data for **current** script type
+        Put value into KubePackage shared data for **current** script type
         
         @see {@link type} Current script type
-        @see {@link getAllSharedFor} View ContentPack shared data for another script type.""")
+        @see {@link getAllSharedFor} View KubePackage shared data for another script type.""")
     public void putShared(String id, Object o) {
         TYPED_GLOBALS.get(type).put(id, o);
     }
 
     @Info("""
-        Get ContentPack shared data for **current** script type
+        Get KubePackage shared data for **current** script type
         
         @see {@link type} Current script type
-        @see {@link getAlSharedFor} View ContentPack shared data for another script type.""")
+        @see {@link getAlSharedFor} View KubePackage shared data for another script type.""")
     public Object getShared(String id) {
         return getShared(this.type, id);
     }
 
     @Info("""
-        Get ContentPack shared data for specified script type
+        Get KubePackage shared data for specified script type
         
         @see {@link type} Current script type
-        @see {@link getAlSharedFor} View ContentPack shared data for another script type.""")
+        @see {@link getAlSharedFor} View KubePackage shared data for another script type.""")
     public Object getShared(ScriptType type, String id) {
         return getAllSharedFor(type).get(id);
     }
 
     @Info("""
-        View all ContentPack shared data for **current** script type
+        View all KubePackage shared data for **current** script type
         
         The return value is **immutable**, which means you can't put value into it
         
         @see {@link type} Current script type
-        @see {@link getAllSharedFor} View ContentPack shared data for another script type.""")
+        @see {@link getAllSharedFor} View KubePackage shared data for another script type.""")
     public Map<String, Object> getAllSharedForCurrent() {
         return getAllSharedFor(type);
     }
 
     @Info("""
-        View all ContentPack shared data for specified script type.
+        View all KubePackage shared data for specified script type.
         
         The return value is **immutable**, which means you can't put value into it
         
-        @see {@link getAllSharedForCurrent} View all ContentPack shared data for **current** script type
-        @see {@link putShared} Put value into ContentPack shared data for **current** script type""")
+        @see {@link getAllSharedForCurrent} View all KubePackage shared data for **current** script type
+        @see {@link putShared} Put value into KubePackage shared data for **current** script type""")
     public Map<String, Object> getAllSharedFor(ScriptType type) {
         return Collections.unmodifiableMap(TYPED_GLOBALS.get(type));
     }
