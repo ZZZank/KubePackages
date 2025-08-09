@@ -12,13 +12,9 @@ import dev.latvian.mods.kubejs.script.*;
 import net.minecraftforge.forgespi.language.IModInfo;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.function.Consumer;
-import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 /**
@@ -49,7 +45,7 @@ public class ModFileKubePackage extends KubePackageBase {
                 .forEach(path -> {
                     var fileInfo = new ScriptFileInfo(pack.info, path.toString());
                     var scriptSource = (ScriptSource.FromPath) info -> path;
-                    context.loadFile(pack, fileInfo, scriptSource);
+                    context.loadFileIntoPack(pack, fileInfo, scriptSource);
                 });
         } catch (IOException e) {
             KubePackages.LOGGER.error("Error when loading package from file", e);

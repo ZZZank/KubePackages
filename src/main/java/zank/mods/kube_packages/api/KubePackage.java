@@ -16,9 +16,6 @@ public interface KubePackage {
 
     PackageMetaData getMetaData();
 
-    /**
-     * 如果该 ContentPack 没有{@link ScriptLoadContext#type()} 对应的 {@link ScriptPack}，返回 {@code null}
-     */
     @Nullable
     ScriptPack getScript(ScriptLoadContext context);
 

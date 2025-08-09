@@ -18,7 +18,8 @@ public class PackDependencyBuilder {
         for (var sortable : sortables) {
 
             for (var dependency : sortable.pack().getMetaData().dependencies()) {
-                if (dependency.type() != DependencyType.REQUIRED && dependency.type() != DependencyType.OPTIONAL) {
+                if (dependency.type() != DependencyType.REQUIRED
+                    && dependency.type() != DependencyType.OPTIONAL) {
                     continue;
                 }
 

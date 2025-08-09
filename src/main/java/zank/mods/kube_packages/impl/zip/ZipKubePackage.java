@@ -47,7 +47,7 @@ public class ZipKubePackage extends KubePackageBase {
                             zipFile.getInputStream(zipEntry), StandardCharsets.UTF_8));
                         return reader.lines().toList();
                     };
-                    context.loadFile(pack, zipFileInfo, scriptSource);
+                    context.loadFileIntoPack(pack, zipFileInfo, scriptSource);
                 });
             return pack;
         } catch (IOException e) {

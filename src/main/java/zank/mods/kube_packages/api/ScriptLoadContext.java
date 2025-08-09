@@ -36,7 +36,7 @@ public class ScriptLoadContext {
         return type().console;
     }
 
-    public void loadFile(ScriptPack pack, ScriptFileInfo fileInfo, ScriptSource source) {
+    public void loadFileIntoPack(ScriptPack pack, ScriptFileInfo fileInfo, ScriptSource source) {
         var packLoadHelper = (ScriptPackLoadHelper) manager;
         packLoadHelper.kpkg$loadFile(pack, fileInfo, source);
     }

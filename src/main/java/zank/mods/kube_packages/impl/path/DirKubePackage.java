@@ -65,7 +65,7 @@ public class DirKubePackage implements KubePackage {
         KubeJS.loadScripts(pack, scriptPath, "");
         for (var fileInfo : pack.info.scripts) {
             var scriptSource = (ScriptSource.FromPath) (info) -> scriptPath.resolve(info.file);
-            context.loadFile(pack, fileInfo, scriptSource);
+            context.loadFileIntoPack(pack, fileInfo, scriptSource);
         }
         return pack;
     }
