@@ -1,12 +1,12 @@
-package zank.mods.kube_packages.impl.dependency;
+package zank.mods.kube_packages.api.meta;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
-import zank.mods.kube_packages.api.meta.PackageMetaData;
 import zank.mods.kube_packages.api.meta.dependency.PackageDependency;
+import zank.mods.kube_packages.impl.dependency.ImmutableMetaData;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,13 +20,20 @@ import java.util.Optional;
 @Accessors(fluent = true, chain = true)
 public class MetaDataBuilder {
     private String id;
-    private Optional<String> name = Optional.empty();
-    private Optional<String> description = Optional.empty();
-    private Optional<ArtifactVersion> version = Optional.empty();
+    private String name = null;
+    private String description = null;
+    private ArtifactVersion version = null;
     private List<String> authors = List.of();
     private List<PackageDependency> dependencies = List.of();
 
     public PackageMetaData build() {
-        return new ImmutableMetaData(id, name, description, version, authors, dependencies);
+        return new ImmutableMetaData(
+            id,
+            Optional.ofNullable(name),
+            Optional.ofNullable(description),
+            Optional.ofNullable(version),
+            authors,
+            dependencies
+        );
     }
 }

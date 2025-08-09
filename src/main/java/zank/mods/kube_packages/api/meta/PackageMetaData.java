@@ -26,8 +26,12 @@ public interface PackageMetaData {
 
     List<PackageDependency> dependencies();
 
+    static MetaDataBuilder builder() {
+        return new MetaDataBuilder();
+    }
+
     static PackageMetaData minimal(String id) {
-        return new ImmutableMetaData(id, Optional.empty(), Optional.empty(), Optional.empty(), List.of(), List.of());
+        return new MetaDataBuilder().id(id).build();
     }
 
     Codec<PackageMetaData> CODEC = RecordCodecBuilder.create(

@@ -16,6 +16,10 @@ import java.util.Optional;
  */
 public interface PackageDependency {
 
+    static DependencyBuilder builder() {
+        return new DependencyBuilder();
+    }
+
     DependencyType type();
 
     DependencySource source();
