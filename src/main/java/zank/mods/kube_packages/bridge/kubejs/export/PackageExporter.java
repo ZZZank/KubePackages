@@ -67,7 +67,7 @@ public class PackageExporter {
         Objects.requireNonNull(this.metadata, "metadata == null");
 
         if (this.exportName == null) {
-            this.exportName = "kube_packages-" + metadata.id();
+            this.exportName = "KubePackages-" + metadata.id() + '-' + metadata.version();
         }
         if (this.scriptTypes == null) {
             this.scriptTypes = ScriptType.values();
