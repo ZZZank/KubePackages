@@ -41,7 +41,7 @@ public class ZipKubePackage extends KubePackageBase {
                 .filter(e -> e.getName().endsWith(".js"))
                 .filter(e -> e.getName().startsWith(prefix))
                 .forEach(zipEntry -> {
-                    var zipFileInfo = new ScriptFileInfo(pack.info, zipEntry.getName());
+                    var zipFileInfo = new ScriptFileInfo(pack.info, zipEntry.getName().substring(prefix.length()));
                     var scriptSource = (ScriptSource) info -> {
                         var reader = new BufferedReader(new InputStreamReader(
                             zipFile.getInputStream(zipEntry), StandardCharsets.UTF_8));
