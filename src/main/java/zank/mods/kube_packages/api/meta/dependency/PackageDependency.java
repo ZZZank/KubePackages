@@ -2,6 +2,7 @@ package zank.mods.kube_packages.api.meta.dependency;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import org.jetbrains.annotations.NotNull;
 import zank.mods.kube_packages.api.KubePackage;
 import zank.mods.kube_packages.impl.dependency.ImmutableDependency;
 import net.minecraft.ChatFormatting;
@@ -20,16 +21,22 @@ public interface PackageDependency {
         return new DependencyBuilder();
     }
 
+    @NotNull
     DependencyType type();
 
+    @NotNull
     DependencySource source();
 
+    @NotNull
     String id();
 
+    @NotNull
     Optional<VersionRange> versionRange();
 
+    @NotNull
     Optional<String> reason();
 
+    @NotNull
     Optional<LoadOrdering> ordering();
 
     default MutableComponent toReport(KubePackage parent) {
