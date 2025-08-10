@@ -56,9 +56,9 @@ public class KubePackagesKJSPlugin extends KubeJSPlugin {
     @Override
     public void init() {
         //path
-        KubePackages.registerProvider(new DirKubePackageProvider(KubePackagePaths.CUSTOM));
+        KubePackages.registerProvider(new DirKubePackageProvider(KubePackagePaths.PACKAGES));
         // zip
-        KubePackages.registerProvider(new ZipKubePackageProvider(KubePackagePaths.CUSTOM));
+        KubePackages.registerProvider(new ZipKubePackageProvider(KubePackagePaths.PACKAGES));
         //kubejs dummy, for sorting packages
         KubePackages.registerProvider(
             new DummyKubePackageProvider(List.of(new DummyKubePackage(KubeJS.MOD_ID, cx -> null)))
