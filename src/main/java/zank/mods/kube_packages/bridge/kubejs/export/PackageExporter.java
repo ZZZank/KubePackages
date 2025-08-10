@@ -40,6 +40,7 @@ public class PackageExporter {
     @Getter(AccessLevel.NONE)
     private final ScriptType runningOn;
 
+    private String exportName;
     private ScriptType[] scriptTypes;
     private PackType[] resourceTypes;
     private ExportType exportAs;
@@ -62,13 +63,22 @@ public class PackageExporter {
     }
 
     public void run() throws IOException {
-        Objects.requireNonNull(this.scriptTypes, "scriptTypes == null");
-        Objects.requireNonNull(this.resourceTypes, "resourceTypes == null");
         Objects.requireNonNull(this.exportAs, "exportAs == null");
         Objects.requireNonNull(this.metadata, "metadata == null");
 
-        var copyTo = KubeJSPaths.EXPORT.resolve("kube_packages-" + metadata.id());
-        PathUtils.createParentDirectories(copyTo);
+        if (this.exportName == null) {
+            this.exportName = "kube_packages-" + metadata.id();
+        }
+        if (this.scriptTypes == null) {
+            this.scriptTypes = ScriptType.values();
+        }
+        if (this.resourceTypes == null) {
+            this.resourceTypes = PackType.values();
+        }
+
+        var copyTo = KubeJSPaths.EXPORT.resolve(this.exportName);
+        ensureDir(copyTo);
+        PathUtils.cleanDirectory(copyTo);
 
         copyScriptAndAsset(copyTo);
         writeMetadata(copyTo);
@@ -86,23 +96,28 @@ public class PackageExporter {
         }
     }
 
+    private static Path ensureDir(Path path) throws IOException {
+        if (!Files.exists(path)) {
+            Files.createDirectories(path);
+        }
+        return path;
+    }
+
     private void copyScriptAndAsset(Path root) throws IOException {
-        var scriptTypes = this.scriptTypes == null ? ScriptType.values() : this.scriptTypes;
         for (var scriptType : scriptTypes) {
             var directory = GameUtil.toFolderName(scriptType);
             PathUtils.copyDirectory(
                 KubeJSPaths.DIRECTORY.resolve(directory),
-                root.resolve(directory)
+                ensureDir(root.resolve(directory))
             );
         }
         debug("scripts copied");
 
-        var resourceTypes = this.resourceTypes == null ? PackType.values() : this.resourceTypes;
         for (var resourceType : resourceTypes) {
             var directory = resourceType.getDirectory();
             PathUtils.copyDirectory(
                 KubeJSPaths.DIRECTORY.resolve(directory),
-                root.resolve(directory)
+                ensureDir(root.resolve(directory))
             );
         }
         debug("assets copied");
@@ -126,6 +141,7 @@ public class PackageExporter {
 
     private void writeModInfos(Path root) throws IOException {
         // mods.toml
+        ensureDir(root.resolve("META-INF"));
         try (var writer = Files.newBufferedWriter(root.resolve("META-INF/mods.toml"))) {
             var got = MetadataToModsToml.convert(metadata, this.modInfoModifier);
             TomlFormat.instance()
@@ -157,7 +173,7 @@ public class PackageExporter {
 
         var manifest = new Manifest();
         var attributes = manifest.getMainAttributes();
-        attributes.putAll(Map.<String, String>of(
+        Map.<String, String>of(
             "Specification-Title", metadata.id(),
             "Specification-Vendor", String.join(", ", metadata.authors()),
             "Specification-Version", "1",
@@ -165,21 +181,16 @@ public class PackageExporter {
             "Implementation-Version", metadata.version().toString(),
             "Implementation-Vendor", String.join(", ", metadata.authors()),
             "Implementation-Timestamp", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date())
-        ));
+        ).forEach(attributes::putValue);
         return new JarOutputStream(rawOut, manifest);
     }
 
     private void sealAsCompressedFile(Path root, String suffix) throws IOException {
-        var filePath = root.getParent().resolve(root.getFileName() + suffix);
+        var filePath = root.getParent().resolve(this.exportName + suffix);
         try (var out = getOutputStream(filePath)) {
-            var paths = (Iterable<Path>) Files.walk(root)::iterator;
-            for (var path : paths) {
-                var normalizedPath = root.relativize(path).toString().replace(File.separatorChar, '/');
-                if (Files.isDirectory(path)) {
-                    normalizedPath += '/';
-                }
-
-                var zipEntry = new ZipEntry(normalizedPath);
+            var stream = Files.walk(root).filter(Files::isRegularFile);
+            for (var path : (Iterable<Path>) stream::iterator) {
+                var zipEntry = new ZipEntry(root.relativize(path).toString().replace(File.separatorChar, '/'));
 
                 out.putNextEntry(zipEntry);
                 try (var fIn = new FileInputStream(path.toFile())) {
@@ -187,8 +198,11 @@ public class PackageExporter {
                 }
                 out.closeEntry();
             }
+            stream.close();
         }
         debug("compressed file exported to: " + Platform.getGameFolder().relativize(filePath));
+        PathUtils.deleteDirectory(root);
+        debug("temp directory removed");
     }
 
     public enum ExportType {

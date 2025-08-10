@@ -51,7 +51,7 @@ public class SimulatedModsToml {
 
     public static SimulatedModsToml buildFromPackage(PackageMetaData metadata) {
         var built = new SimulatedModsToml();
-        built.license = metadata.license().orElse(null);
+        built.license = metadata.license().orElse("Unknown License");
         built.mods = List.of(SimulatedModInfo.buildFromPackage(metadata));
         var packageDependencies = Stream.concat(
                 metadata.dependencies().stream(),
