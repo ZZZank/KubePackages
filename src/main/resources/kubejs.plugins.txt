@@ -1,0 +1,1 @@
+zank.mods.kube_packages.bridge.kubejs.KubePackagesKJSPlugin
