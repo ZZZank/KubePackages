@@ -32,7 +32,7 @@ public class ModFileKubePackage extends KubePackageBase {
     @Nullable
     protected ScriptPack createPack(ScriptLoadContext context) {
         var pack = KubePackageUtils.createEmptyPack(context, id());
-        var basePath = this.mod.getFile().findResource(KubePackages.FOLDER_NAME, context.folderName());
+        var basePath = this.mod.getFile().findResource(context.folderName());
         if (!Files.exists(basePath)) {
             return null;
         }

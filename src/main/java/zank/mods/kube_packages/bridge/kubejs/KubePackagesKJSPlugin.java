@@ -59,17 +59,12 @@ public class KubePackagesKJSPlugin extends KubeJSPlugin {
         KubePackages.registerProvider(new DirKubePackageProvider(KubePackagePaths.PACKAGES));
         // zip
         KubePackages.registerProvider(new ZipKubePackageProvider(KubePackagePaths.PACKAGES));
+        // mod
+        KubePackages.registerProvider(new ModKubePackageProvider());
         //kubejs dummy, for sorting packages
         KubePackages.registerProvider(
             new DummyKubePackageProvider(List.of(new DummyKubePackage(KubeJS.MOD_ID, cx -> null)))
         );
-        // mod
-        ModList.get()
-            .getModFiles()
-            .stream()
-            .filter(ModKubePackageProvider::validate)
-            .map(ModKubePackageProvider::new)
-            .forEach(KubePackages::registerProvider);
     }
 
     @Override
