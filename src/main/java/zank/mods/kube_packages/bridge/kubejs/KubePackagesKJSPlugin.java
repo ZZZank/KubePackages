@@ -1,4 +1,4 @@
-package zank.mods.kube_packages.bridge;
+package zank.mods.kube_packages.bridge.kubejs;
 
 import dev.latvian.mods.kubejs.KubeJS;
 import dev.latvian.mods.kubejs.KubeJSPlugin;
@@ -8,15 +8,16 @@ import dev.latvian.mods.rhino.util.wrap.TypeWrappers;
 import net.minecraftforge.fml.ModList;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
-import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.VersionRange;
 import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.inject.SortablePackageHolder;
+import zank.mods.kube_packages.bridge.KubePackagePaths;
 import zank.mods.kube_packages.impl.dummy.DummyKubePackage;
 import zank.mods.kube_packages.impl.dummy.DummyKubePackageProvider;
 import zank.mods.kube_packages.impl.mod.ModKubePackageProvider;
 import zank.mods.kube_packages.impl.path.DirKubePackageProvider;
 import zank.mods.kube_packages.impl.zip.ZipKubePackageProvider;
+import zank.mods.kube_packages.utils.CodecUtil;
 
 import java.util.List;
 
@@ -30,13 +31,9 @@ public class KubePackagesKJSPlugin extends KubeJSPlugin {
         typeWrappers.registerSimple(
             VersionRange.class,
             from -> from instanceof CharSequence,
-            (from) -> {
-                try {
-                    return VersionRange.createFromVersionSpec(from.toString());
-                } catch (InvalidVersionSpecificationException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+            CodecUtil.wrapUnsafeFn(
+                from -> VersionRange.createFromVersionSpec(from.toString())
+            )::applyOrThrow
         );
         typeWrappers.registerSimple(
             ArtifactVersion.class,
@@ -62,7 +59,7 @@ public class KubePackagesKJSPlugin extends KubeJSPlugin {
         KubePackages.registerProvider(new DirKubePackageProvider(KubePackagePaths.CUSTOM));
         // zip
         KubePackages.registerProvider(new ZipKubePackageProvider(KubePackagePaths.CUSTOM));
-        //kubejs dummy, for sorting content packs
+        //kubejs dummy, for sorting packages
         KubePackages.registerProvider(
             new DummyKubePackageProvider(List.of(new DummyKubePackage(KubeJS.MOD_ID, cx -> null)))
         );

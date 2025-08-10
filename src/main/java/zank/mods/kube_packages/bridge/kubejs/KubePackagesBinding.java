@@ -1,4 +1,4 @@
-package zank.mods.kube_packages.bridge;
+package zank.mods.kube_packages.bridge.kubejs;
 
 import com.google.common.collect.Maps;
 import zank.mods.kube_packages.api.KubePackage;
