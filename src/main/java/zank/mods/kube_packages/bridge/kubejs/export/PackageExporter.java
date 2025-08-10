@@ -2,6 +2,7 @@ package zank.mods.kube_packages.bridge.kubejs.export;
 
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.mojang.serialization.JsonOps;
+import dev.architectury.platform.Platform;
 import dev.latvian.mods.kubejs.KubeJSPaths;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import lombok.AccessLevel;
@@ -44,6 +45,7 @@ public class PackageExporter {
     private ExportType exportAs;
     private PackageMetaData metadata;
     private Consumer<SimulatedModsToml> modInfoModifier;
+    private boolean debugMode;
 
     public PackageExporter(ScriptType runningOn) {
         this.runningOn = Objects.requireNonNull(runningOn);
@@ -78,6 +80,12 @@ public class PackageExporter {
         }
     }
 
+    private void debug(String message) {
+        if (this.debugMode) {
+            this.runningOn.console.info(message);
+        }
+    }
+
     private void copyScriptAndAsset(Path root) throws IOException {
         var scriptTypes = this.scriptTypes == null ? ScriptType.values() : this.scriptTypes;
         for (var scriptType : scriptTypes) {
@@ -87,6 +95,7 @@ public class PackageExporter {
                 root.resolve(directory)
             );
         }
+        debug("scripts copied");
 
         var resourceTypes = this.resourceTypes == null ? PackType.values() : this.resourceTypes;
         for (var resourceType : resourceTypes) {
@@ -96,6 +105,7 @@ public class PackageExporter {
                 root.resolve(directory)
             );
         }
+        debug("assets copied");
     }
 
     private void writeMetadata(Path root) throws IOException {
@@ -111,6 +121,7 @@ public class PackageExporter {
             jsonWriter.setIndent("    ");
             KubePackages.GSON.toJson(encoded, jsonWriter);
         }
+        debug("package metadata exported");
     }
 
     private void writeModInfos(Path root) throws IOException {
@@ -121,6 +132,7 @@ public class PackageExporter {
                 .createWriter()
                 .write(got, writer);
         }
+        debug("mods.toml generated");
 
         // pack.mcmeta
         try (var writer = Files.newBufferedWriter(root.resolve("pack.mcmeta"))) {
@@ -134,6 +146,7 @@ public class PackageExporter {
             jsonWriter.setIndent("    ");
             KubePackages.GSON.toJson(mcmeta, Map.class, jsonWriter);
         }
+        debug("pack.mcmeta generated");
     }
 
     private ZipOutputStream getOutputStream(Path path) throws IOException {
@@ -157,8 +170,8 @@ public class PackageExporter {
     }
 
     private void sealAsCompressedFile(Path root, String suffix) throws IOException {
-
-        try (var out = getOutputStream(root.getParent().resolve(root.getFileName() + suffix))) {
+        var filePath = root.getParent().resolve(root.getFileName() + suffix);
+        try (var out = getOutputStream(filePath)) {
             var paths = (Iterable<Path>) Files.walk(root)::iterator;
             for (var path : paths) {
                 var normalizedPath = root.relativize(path).toString().replace(File.separatorChar, '/');
@@ -175,6 +188,7 @@ public class PackageExporter {
                 out.closeEntry();
             }
         }
+        debug("compressed file exported to: " + Platform.getGameFolder().relativize(filePath));
     }
 
     public enum ExportType {
