@@ -8,6 +8,7 @@ import org.apache.maven.artifact.versioning.VersionRange;
 
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -21,6 +22,10 @@ public class CodecUtil {
     );
     public static final Codec<ArtifactVersion> VERSION_CODEC = Codec.STRING.xmap(
         DefaultArtifactVersion::new, ArtifactVersion::toString);
+
+    public static final Consumer<String> THROW_ERROR = errorMessage -> {
+        throw new RuntimeException(errorMessage);
+    };
 
     public static <T extends Enum<T>> Codec<T> createEnumStringCodec(Class<T> type) {
         return createEnumStringCodec(type, true);

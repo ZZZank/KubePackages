@@ -1,7 +1,5 @@
 package zank.mods.kube_packages.impl.path;
 
-import com.google.gson.JsonObject;
-import com.mojang.serialization.JsonOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.PathPackResources;
@@ -17,7 +15,6 @@ import dev.latvian.mods.kubejs.script.ScriptSource;
 import org.jetbrains.annotations.Nullable;
 import zank.mods.kube_packages.utils.AssetUtil;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -26,6 +23,19 @@ import java.util.function.Consumer;
  * @author ZZZank
  */
 public class DirKubePackage implements KubePackage {
+    public static DirKubePackage tryLoad(Path base) {
+        var path = base.resolve(KubePackages.META_DATA_FILE_NAME);
+        if (!Files.exists(path) || !Files.isRegularFile(path)) {
+            return null;
+        }
+        try (var reader = Files.newBufferedReader(path)) {
+            var metaData = KubePackageUtils.loadMetaDataOrThrow(reader);
+            return new DirKubePackage(base, metaData);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public static boolean validate(Path base) {
         var path = base.resolve(KubePackages.META_DATA_FILE_NAME);
         return Files.exists(path) && Files.isRegularFile(path);
@@ -34,20 +44,9 @@ public class DirKubePackage implements KubePackage {
     private final Path base;
     private final PackageMetaData metaData;
 
-    public DirKubePackage(Path base) {
+    public DirKubePackage(Path base, PackageMetaData metaData) {
         this.base = base;
-        try (var reader = Files.newBufferedReader(base.resolve(KubePackages.META_DATA_FILE_NAME))) {
-            this.metaData = PackageMetaData.CODEC.parse(
-                    JsonOps.INSTANCE,
-                    KubePackages.GSON.fromJson(reader, JsonObject.class)
-                )
-                .resultOrPartial(error -> {
-                    throw new RuntimeException("Error when parsing metadata: " + error);
-                })
-                .orElseThrow();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        this.metaData = metaData;
     }
 
     @Override

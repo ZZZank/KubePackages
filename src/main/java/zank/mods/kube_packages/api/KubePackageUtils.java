@@ -13,6 +13,7 @@ import zank.mods.kube_packages.api.meta.dependency.PackageDependency;
 import dev.latvian.mods.kubejs.script.ScriptPack;
 import dev.latvian.mods.kubejs.script.ScriptPackInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
+import zank.mods.kube_packages.utils.CodecUtil;
 import zank.mods.kube_packages.utils.FileUtil;
 
 import java.io.IOException;
@@ -37,19 +38,22 @@ public class KubePackageUtils {
 
     public static DataResult<PackageMetaData> loadMetaData(InputStream stream) {
         try (var reader = FileUtil.stream2reader(stream)) {
-            var json = KubePackages.GSON.fromJson(reader, JsonObject.class);
-            return PackageMetaData.CODEC.parse(JsonOps.INSTANCE, json);
+            return loadMetaData(reader);
         } catch (IOException e) {
             return DataResult.error(e::toString);
         }
     }
 
     public static PackageMetaData loadMetaDataOrThrow(InputStream stream) {
-        var result = loadMetaData(stream);
-        if (result.error().isPresent()) {
-            throw new RuntimeException(result.error().get().message());
-        }
-        return result.result().orElseThrow();
+        return loadMetaData(stream)
+            .resultOrPartial(CodecUtil.THROW_ERROR)
+            .orElseThrow();
+    }
+
+    public static PackageMetaData loadMetaDataOrThrow(Reader reader) {
+        return loadMetaData(reader)
+            .resultOrPartial(CodecUtil.THROW_ERROR)
+            .orElseThrow();
     }
 
     public static PackageMetaData metadataFromMod(IModInfo mod) {

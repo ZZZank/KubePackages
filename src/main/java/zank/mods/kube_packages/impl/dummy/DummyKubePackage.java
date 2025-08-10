@@ -2,7 +2,6 @@ package zank.mods.kube_packages.impl.dummy;
 
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
-import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import zank.mods.kube_packages.api.KubePackage;
 import zank.mods.kube_packages.api.ScriptLoadContext;
 import zank.mods.kube_packages.api.meta.PackageMetaData;
@@ -18,10 +17,6 @@ import java.util.function.Function;
 public class DummyKubePackage implements KubePackage {
     private final PackageMetaData metaData;
     private final Function<ScriptLoadContext, ScriptPack> toPack;
-
-    public DummyKubePackage(String namespace, Function<ScriptLoadContext, ScriptPack> toPack) {
-        this(PackageMetaData.minimal(namespace, new DefaultArtifactVersion("1.1.1")), toPack);
-    }
 
     public DummyKubePackage(PackageMetaData metaData, Function<ScriptLoadContext, ScriptPack> toPack) {
         this.metaData = metaData;

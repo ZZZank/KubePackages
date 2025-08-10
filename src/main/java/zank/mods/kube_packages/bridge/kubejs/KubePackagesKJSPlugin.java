@@ -5,12 +5,12 @@ import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.script.BindingsEvent;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.rhino.util.wrap.TypeWrappers;
-import net.minecraftforge.fml.ModList;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.artifact.versioning.VersionRange;
 import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.inject.SortablePackageHolder;
+import zank.mods.kube_packages.api.meta.PackageMetaData;
 import zank.mods.kube_packages.bridge.KubePackagePaths;
 import zank.mods.kube_packages.impl.dummy.DummyKubePackage;
 import zank.mods.kube_packages.impl.dummy.DummyKubePackageProvider;
@@ -63,7 +63,12 @@ public class KubePackagesKJSPlugin extends KubeJSPlugin {
         KubePackages.registerProvider(new ModKubePackageProvider());
         //kubejs dummy, for sorting packages
         KubePackages.registerProvider(
-            new DummyKubePackageProvider(List.of(new DummyKubePackage(KubeJS.MOD_ID, cx -> null)))
+            new DummyKubePackageProvider(List.of(new DummyKubePackage(
+                PackageMetaData.minimal(
+                    KubeJS.MOD_ID,
+                    new DefaultArtifactVersion("1.1.1")
+                ), cx -> null
+            )))
         );
     }
 

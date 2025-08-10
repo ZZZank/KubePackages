@@ -27,6 +27,7 @@ public class ModKubePackageProvider implements KubePackageProvider {
             if (metadata == null) {
                 continue;
             }
+            KubePackages.LOGGER.info("Found package metadata in mod: {}", GameUtil.extractModIds(modFile));
             packages.add(new ModFileKubePackage(modFile, metadata));
         }
         return packages;
@@ -34,7 +35,7 @@ public class ModKubePackageProvider implements KubePackageProvider {
 
     private static PackageMetaData findMetadata(IModFileInfo modFile) {
         var path = modFile.getFile().findResource(KubePackages.META_DATA_FILE_NAME);
-        if (!Files.exists(path) || !Files.isRegularFile(path)) {
+        if (!Files.exists(path)) {
             return null;
         }
         try (var reader = Files.newBufferedReader(path)) {

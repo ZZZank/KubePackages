@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author ZZZank
@@ -23,12 +24,13 @@ public class DirKubePackageProvider implements KubePackageProvider {
 
     @Override
     public @NotNull Collection<? extends @NotNull KubePackage> provide() {
-        try {
-            return Files.list(base)
-                .filter(Files::isDirectory)
-                .filter(DirKubePackage::validate)
-                .map(DirKubePackage::new)
+        try (var stream = Files.list(base)) {
+            var found = stream.filter(Files::isDirectory)
+                .map(DirKubePackage::tryLoad)
+                .filter(Objects::nonNull)
                 .toList();
+            KubePackages.LOGGER.info("Found {} packages from DirKubePackageProvider", found.size());
+            return found;
         } catch (IOException e) {
             KubePackages.LOGGER.error("Error when collecting package information from path", e);
             return List.of();

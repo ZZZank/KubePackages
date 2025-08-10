@@ -24,14 +24,15 @@ public class ZipKubePackageProvider implements KubePackageProvider {
 
     @Override
     public @NotNull Collection<? extends @NotNull KubePackage> provide() {
-        try {
-            return Files.list(basePath)
-                .filter(Files::isRegularFile)
+        try (var stream = Files.list(basePath)) {
+            var found = stream.filter(Files::isRegularFile)
                 .map(Path::toFile)
                 .filter(f -> f.getName().endsWith(".zip"))
                 .map(this::safelyScanSingle)
                 .filter(Objects::nonNull)
                 .toList();
+            KubePackages.LOGGER.info("Found {} packages from ZipKubePackageProvider", found.size());
+            return found;
         } catch (IOException e) {
             KubePackages.LOGGER.error("Error when scanning zip file for ContentPack, ignoring all zip");
             return List.of();
