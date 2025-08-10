@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import zank.mods.kube_packages.api.meta.dependency.PackageDependency;
 import zank.mods.kube_packages.impl.dependency.ImmutableMetaData;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
+import zank.mods.kube_packages.utils.CodecUtil;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +26,7 @@ public interface PackageMetaData {
     Optional<String> description();
 
     @NotNull
-    Optional<ArtifactVersion> version();
+    ArtifactVersion version();
 
     @NotNull
     Optional<String> license();
@@ -40,8 +41,8 @@ public interface PackageMetaData {
         return new MetaDataBuilder();
     }
 
-    static PackageMetaData minimal(String id) {
-        return new MetaDataBuilder().id(id).build();
+    static PackageMetaData minimal(String id, ArtifactVersion version) {
+        return new MetaDataBuilder().id(id).version(version).build();
     }
 
     Codec<PackageMetaData> CODEC = RecordCodecBuilder.create(

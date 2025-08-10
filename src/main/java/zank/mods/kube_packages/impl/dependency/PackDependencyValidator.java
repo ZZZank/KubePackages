@@ -46,7 +46,7 @@ public class PackDependencyValidator {
                 var target = this.named.get(dependency.id());
                 targetPresent = target != null;
                 targetVersion = targetPresent
-                    ? target.getMetaData().version().orElse(null)
+                    ? target.getMetaData().version()
                     : null;
             }
             case MOD -> {

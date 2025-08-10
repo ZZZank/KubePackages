@@ -14,7 +14,7 @@ public record ImmutableMetaData(
     @NonNull String id,
     @NonNull Optional<String> name,
     @NonNull Optional<String> description,
-    @NonNull Optional<ArtifactVersion> version,
+    @NonNull ArtifactVersion version,
     @NonNull Optional<String> license,
     @NonNull List<String> authors,
     @NonNull List<PackageDependency> dependencies

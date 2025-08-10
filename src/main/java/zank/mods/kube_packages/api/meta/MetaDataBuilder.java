@@ -32,7 +32,7 @@ public class MetaDataBuilder {
             id,
             Optional.ofNullable(name),
             Optional.ofNullable(description),
-            Optional.ofNullable(version),
+            version,
             Optional.ofNullable(license),
             authors,
             dependencies
