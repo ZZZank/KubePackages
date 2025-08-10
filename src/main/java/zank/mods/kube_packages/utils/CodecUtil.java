@@ -2,6 +2,9 @@ package zank.mods.kube_packages.utils;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.apache.maven.artifact.versioning.VersionRange;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -12,6 +15,13 @@ import java.util.stream.Collectors;
  * @author ZZZank
  */
 public class CodecUtil {
+    public static final Codec<VersionRange> VERSION_RANGE_CODEC = Codec.STRING.comapFlatMap(
+        wrapUnsafeFn(VersionRange::createFromVersionSpec),
+        VersionRange::toString
+    );
+    public static final Codec<ArtifactVersion> VERSION_CODEC = Codec.STRING.xmap(
+        DefaultArtifactVersion::new, ArtifactVersion::toString);
+
     public static <T extends Enum<T>> Codec<T> createEnumStringCodec(Class<T> type) {
         return createEnumStringCodec(type, true);
     }

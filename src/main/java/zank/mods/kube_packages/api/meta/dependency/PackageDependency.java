@@ -9,6 +9,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import org.apache.maven.artifact.versioning.VersionRange;
+import zank.mods.kube_packages.utils.CodecUtil;
 
 import java.util.Optional;
 
@@ -57,7 +58,7 @@ public interface PackageDependency {
             DependencyType.CODEC.fieldOf("type").forGetter(PackageDependency::type),
             DependencySource.CODEC.optionalFieldOf("source", DependencySource.PACK).forGetter(PackageDependency::source),
             Codec.STRING.fieldOf("id").forGetter(PackageDependency::id),
-            ImmutableDependency.VERSION_RANGE_CODEC.optionalFieldOf("versionRange")
+            CodecUtil.VERSION_RANGE_CODEC.optionalFieldOf("versionRange")
                 .forGetter(PackageDependency::versionRange),
             Codec.STRING.optionalFieldOf("reason").forGetter(PackageDependency::reason),
             LoadOrdering.CODEC.optionalFieldOf("ordering").forGetter(PackageDependency::ordering)

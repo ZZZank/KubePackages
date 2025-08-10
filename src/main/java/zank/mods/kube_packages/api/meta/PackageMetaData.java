@@ -49,7 +49,7 @@ public interface PackageMetaData {
             Codec.STRING.fieldOf("id").forGetter(PackageMetaData::id),
             Codec.STRING.optionalFieldOf("name").forGetter(PackageMetaData::name),
             Codec.STRING.optionalFieldOf("description").forGetter(PackageMetaData::description),
-            ImmutableMetaData.VERSION_CODEC.optionalFieldOf("version").forGetter(PackageMetaData::version),
+            CodecUtil.VERSION_CODEC.fieldOf("version").forGetter(PackageMetaData::version),
             Codec.STRING.optionalFieldOf("license").forGetter(PackageMetaData::license),
             Codec.STRING.listOf().optionalFieldOf("authors", List.of()).forGetter(PackageMetaData::authors),
             PackageDependency.CODEC.listOf()
