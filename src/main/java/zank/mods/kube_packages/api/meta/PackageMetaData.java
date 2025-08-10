@@ -22,6 +22,8 @@ public interface PackageMetaData {
 
     Optional<ArtifactVersion> version();
 
+    Optional<String> license();
+
     List<String> authors();
 
     List<PackageDependency> dependencies();
@@ -40,6 +42,7 @@ public interface PackageMetaData {
             Codec.STRING.optionalFieldOf("name").forGetter(PackageMetaData::name),
             Codec.STRING.optionalFieldOf("description").forGetter(PackageMetaData::description),
             ImmutableMetaData.VERSION_CODEC.optionalFieldOf("version").forGetter(PackageMetaData::version),
+            Codec.STRING.optionalFieldOf("license").forGetter(PackageMetaData::license),
             Codec.STRING.listOf().optionalFieldOf("authors", List.of()).forGetter(PackageMetaData::authors),
             PackageDependency.CODEC.listOf()
                 .optionalFieldOf("dependencies", List.of())

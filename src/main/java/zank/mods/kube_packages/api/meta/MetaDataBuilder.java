@@ -23,6 +23,7 @@ public class MetaDataBuilder {
     private String name = null;
     private String description = null;
     private ArtifactVersion version = null;
+    private String license = null;
     private List<String> authors = List.of();
     private List<PackageDependency> dependencies = List.of();
 
@@ -32,6 +33,7 @@ public class MetaDataBuilder {
             Optional.ofNullable(name),
             Optional.ofNullable(description),
             Optional.ofNullable(version),
+            Optional.ofNullable(license),
             authors,
             dependencies
         );

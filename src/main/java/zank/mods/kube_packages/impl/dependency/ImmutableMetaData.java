@@ -17,6 +17,7 @@ public record ImmutableMetaData(
     @NonNull Optional<String> name,
     @NonNull Optional<String> description,
     @NonNull Optional<ArtifactVersion> version,
+    @NonNull Optional<String> license,
     @NonNull List<String> authors,
     @NonNull List<PackageDependency> dependencies
 ) implements PackageMetaData {

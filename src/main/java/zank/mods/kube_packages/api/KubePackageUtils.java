@@ -58,6 +58,7 @@ public class KubePackageUtils {
             Optional.of(mod.getDisplayName()),
             Optional.of(mod.getDescription()),
             Optional.of(mod.getVersion()),
+            Optional.of(mod.getOwningFile().getLicense()).map(s -> s.isEmpty() ? null : s),
             List.of(),
             mod.getDependencies()
                 .stream()
