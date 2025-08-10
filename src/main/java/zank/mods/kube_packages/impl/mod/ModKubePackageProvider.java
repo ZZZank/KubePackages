@@ -18,19 +18,24 @@ import java.util.*;
  * @author ZZZank
  */
 public class ModKubePackageProvider implements KubePackageProvider {
+    private List<KubePackage> cached;
 
     @Override
     public @NotNull Collection<? extends @NotNull KubePackage> provide() {
-        var packages = new ArrayList<KubePackage>();
+        if (cached != null) {
+            return cached;
+        }
+
+        cached = new ArrayList<>();
         for (var modFile : ModList.get().getModFiles()) {
             var metadata = findMetadata(modFile);
             if (metadata == null) {
                 continue;
             }
-            KubePackages.LOGGER.info("Found package metadata in mod: {}", GameUtil.extractModIds(modFile));
-            packages.add(new ModFileKubePackage(modFile, metadata));
+            cached.add(new ModFileKubePackage(modFile, metadata));
         }
-        return packages;
+        KubePackages.LOGGER.info("Found {} packages via ModKubePackageProvider", cached.size());
+        return cached;
     }
 
     private static PackageMetaData findMetadata(IModFileInfo modFile) {
