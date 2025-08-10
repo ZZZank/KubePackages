@@ -1,12 +1,14 @@
 package zank.mods.kube_packages.bridge.kubejs;
 
 import com.google.common.collect.Maps;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
 import zank.mods.kube_packages.api.KubePackage;
 import zank.mods.kube_packages.api.inject.SortablePackageHolder;
 import zank.mods.kube_packages.api.meta.PackageMetaData;
 import zank.mods.kube_packages.api.meta.dependency.DependencyBuilder;
 import zank.mods.kube_packages.api.meta.MetaDataBuilder;
 import zank.mods.kube_packages.api.meta.dependency.PackageDependency;
+import zank.mods.kube_packages.bridge.kubejs.export.PackageExporter;
 import zank.mods.kube_packages.impl.dependency.SortableKubePackage;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.typings.Info;
@@ -36,20 +38,20 @@ public class KubePackagesBinding {
         this.pkgHolder = pkgHolder;
     }
 
-    public ScriptType type() {
-        return type;
-    }
-
     public MetaDataBuilder metaDataBuilder() {
         return PackageMetaData.builder();
     }
 
-    public PackageMetaData metaDataMinimal(String id) {
-        return PackageMetaData.minimal(id);
+    public PackageMetaData metaDataMinimal(String id, ArtifactVersion version) {
+        return PackageMetaData.minimal(id, version);
     }
 
     public DependencyBuilder dependencyBuilder() {
         return PackageDependency.builder();
+    }
+
+    public PackageExporter packageExporter() {
+        return new PackageExporter(this.type);
     }
 
     @Info("""
