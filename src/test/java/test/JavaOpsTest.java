@@ -1,7 +1,5 @@
 package test;
 
-import com.electronwill.nightconfig.core.io.WritingMode;
-import com.electronwill.nightconfig.toml.TomlFormat;
 import com.google.common.base.Suppliers;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.junit.jupiter.api.Assertions;
@@ -9,13 +7,11 @@ import org.junit.jupiter.api.Test;
 import zank.mods.kube_packages.api.meta.PackageMetaData;
 import zank.mods.kube_packages.api.meta.dependency.DependencySource;
 import zank.mods.kube_packages.api.meta.dependency.DependencyType;
-import zank.mods.kube_packages.bridge.kubejs.export.MetadataToModsToml;
 import zank.mods.kube_packages.impl.dependency.ImmutableDependency;
 import zank.mods.kube_packages.impl.dependency.ImmutableMetaData;
 import zank.mods.kube_packages.utils.GameUtil;
 import zank.mods.kube_packages.utils.JavaOps;
 
-import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -55,15 +51,5 @@ public class JavaOpsTest {
             .orElseThrow();
         var decodedDependencies = (List<?>) decodedMetadata.get("dependencies");
         Assertions.assertEquals(1, decodedDependencies.size());
-    }
-
-    public static void main(String[] args) {
-        var path = Path.of("run", "mods.toml");
-        TomlFormat.instance().createWriter().write(
-            MetadataToModsToml.convert(META_DATA.get(), null),
-            path,
-            WritingMode.REPLACE
-        );
-        System.out.println("mods.toml exported to: " + path.toAbsolutePath());
     }
 }
