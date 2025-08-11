@@ -70,6 +70,6 @@ public class ZipKubePackage extends KubePackageBase {
 
     @Override
     public String toString() {
-        return "ZipKubePackage[namespace=%s]".formatted(metaData.id());
+        return "ZipKubePackage[%s]".formatted(metaData.id());
     }
 }

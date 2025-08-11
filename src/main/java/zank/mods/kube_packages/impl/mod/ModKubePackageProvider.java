@@ -34,7 +34,6 @@ public class ModKubePackageProvider implements KubePackageProvider {
             }
             cached.add(new ModFileKubePackage(modFile, metadata));
         }
-        KubePackages.LOGGER.info("Found {} packages via ModKubePackageProvider", cached.size());
         return cached;
     }
 

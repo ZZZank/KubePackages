@@ -37,6 +37,7 @@ public class KubePackages {
                 .map(KubePackageProvider::provide)
                 .flatMap(Collection::stream)
                 .collect(Collectors.toUnmodifiableList());
+            LOGGER.info("Collected {} packages: {}", cachedPackages.size(), cachedPackages);
         }
         return cachedPackages;
     }

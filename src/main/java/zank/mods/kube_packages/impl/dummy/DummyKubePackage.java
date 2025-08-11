@@ -36,4 +36,9 @@ public class DummyKubePackage implements KubePackage {
     public PackageMetaData getMetaData() {
         return metaData;
     }
+
+    @Override
+    public String toString() {
+        return "DummyKubePackage[%s]".formatted(metaData.id());
+    }
 }

@@ -25,12 +25,10 @@ public class DirKubePackageProvider implements KubePackageProvider {
     @Override
     public @NotNull Collection<? extends @NotNull KubePackage> provide() {
         try (var stream = Files.list(base)) {
-            var found = stream.filter(Files::isDirectory)
+            return stream.filter(Files::isDirectory)
                 .map(DirKubePackage::tryLoad)
                 .filter(Objects::nonNull)
                 .toList();
-            KubePackages.LOGGER.info("Found {} packages from DirKubePackageProvider", found.size());
-            return found;
         } catch (IOException e) {
             KubePackages.LOGGER.error("Error when collecting package information from path", e);
             return List.of();
