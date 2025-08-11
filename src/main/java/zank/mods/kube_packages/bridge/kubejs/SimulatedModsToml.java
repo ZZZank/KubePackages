@@ -60,7 +60,7 @@ public class SimulatedModsToml {
             .collect(Collectors.toMap(
                 PackageDependency::id,
                 Function.identity(),
-                (a, b) -> a
+                (a, b) -> a // prefer dependencies from metadata
             ))
             .values()
             .stream()
@@ -83,7 +83,7 @@ public class SimulatedModsToml {
             var built = new SimulatedModInfo();
             built.modId = metadata.id();
             built.version = metadata.version();
-            built.displayName = metadata.name().orElse(metadata.id());
+            built.displayName = metadata.displayName();
             built.authors = String.join(", ", metadata.authors());
             built.description = metadata.description().orElse(null);
             return built;

@@ -62,13 +62,13 @@ public class KubePackagesCommands {
     }
 
     private static int exportPackage(CommandContext<CommandSourceStack> cx) throws CommandSyntaxException {
+        var reporter = extractReporter(cx);
         KubePackages.LOGGER.info("Package export requested through command");
 
         var id = cx.getArgument("id", String.class);
         var version = cx.getArgument("version", String.class);
         var exportAs = cx.getArgument("exportAs", PackageExporter.ExportType.class);
 
-        Consumer<Component> reporter = cx.getSource().getPlayerOrException()::sendSystemMessage;
         new PackageExporter(c -> reporter.accept(Component.literal("[KubePackages] ").kjs$blue().append(c)))
             .debugMode(true)
             .metadata(PackageMetaData.minimal(id, new DefaultArtifactVersion(version)))
@@ -81,7 +81,7 @@ public class KubePackagesCommands {
     }
 
     private static int listPackages(CommandContext<CommandSourceStack> cx) throws CommandSyntaxException {
-        Consumer<Component> reporter = cx.getSource().getPlayerOrException()::sendSystemMessage;
+        var reporter = extractReporter(cx);
 
         var packages = KubePackages.getPackages();
         reporter.accept(Component.translatable("Found %s packages:", packages.size()));
@@ -95,8 +95,8 @@ public class KubePackagesCommands {
                         metaData.displayName(),
                         metaData.id(),
                         metaData.version()
-                    ))
-                    .kjs$clickSuggestCommand("/kpkg package show " + metaData.id())
+                    ).kjs$green())
+                    .kjs$clickSuggestCommand("/kpkg package findInstalled " + metaData.id())
                     .kjs$hover(Component.literal("Click for detailed info"))
             );
         }
@@ -104,7 +104,7 @@ public class KubePackagesCommands {
     }
 
     private static int showPackage(CommandContext<CommandSourceStack> cx) throws CommandSyntaxException {
-        Consumer<Component> reporter = cx.getSource().getPlayerOrException()::sendSystemMessage;
+        var reporter = extractReporter(cx);
 
         var targetId = cx.getArgument("id", String.class);
 
@@ -120,5 +120,9 @@ public class KubePackagesCommands {
         reporter.accept(text);
 
         return Command.SINGLE_SUCCESS;
+    }
+
+    private static Consumer<Component> extractReporter(CommandContext<CommandSourceStack> cx) throws CommandSyntaxException {
+        return cx.getSource().getPlayerOrException()::sendSystemMessage;
     }
 }

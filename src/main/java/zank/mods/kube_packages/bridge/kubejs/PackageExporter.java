@@ -18,6 +18,7 @@ import zank.mods.kube_packages.api.meta.PackageMetaData;
 import zank.mods.kube_packages.utils.CodecUtil;
 import zank.mods.kube_packages.utils.GameUtil;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -60,8 +61,7 @@ public class PackageExporter {
             () -> {
                 try {
                     this.run();
-                    report(Component.literal("Package exported to: " + Platform.getGameFolder()
-                        .relativize(KubeJSPaths.EXPORT.resolve(this.exportName))));
+                    report(Component.literal("Package exported to: " + KubeJSPaths.EXPORT));
                 } catch (IOException e) {
                     report(Component.literal("Error when exporting packages: ")
                         .withStyle(ChatFormatting.RED)
@@ -131,7 +131,7 @@ public class PackageExporter {
                 ensureDir(root.resolve(directory))
             );
         }
-        debug("scripts copied");
+        debug("Scripts copied");
 
         for (var resourceType : resourceTypes) {
             var directory = resourceType.getDirectory();
@@ -140,7 +140,7 @@ public class PackageExporter {
                 ensureDir(root.resolve(directory))
             );
         }
-        debug("assets copied");
+        debug("Assets copied");
     }
 
     private void writeMetadata(Path root) throws IOException {
@@ -152,7 +152,7 @@ public class PackageExporter {
             jsonWriter.setIndent("    ");
             KubePackages.GSON.toJson(encoded, jsonWriter);
         }
-        debug("package metadata exported");
+        debug("Package metadata exported");
     }
 
     private void writeModInfos(Path root) throws IOException {
@@ -182,7 +182,7 @@ public class PackageExporter {
     }
 
     private ZipOutputStream getOutputStream(Path path) throws IOException {
-        var rawOut = Files.newOutputStream(path);
+        var rawOut = new BufferedOutputStream(Files.newOutputStream(path));
         if (this.exportAs == ExportType.ZIP) {
             return new ZipOutputStream(rawOut);
         }
@@ -193,7 +193,7 @@ public class PackageExporter {
             "Specification-Title", metadata.id(),
             "Specification-Vendor", String.join(", ", metadata.authors()),
             "Specification-Version", "1",
-            "Implementation-Title", metadata.name().orElse(metadata.id()),
+            "Implementation-Title", metadata.displayName(),
             "Implementation-Version", metadata.version().toString(),
             "Implementation-Vendor", String.join(", ", metadata.authors()),
             "Implementation-Timestamp", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date())
