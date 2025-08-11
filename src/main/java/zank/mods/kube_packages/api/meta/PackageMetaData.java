@@ -22,6 +22,10 @@ public interface PackageMetaData {
     @NotNull
     Optional<String> name();
 
+    default String displayName() {
+        return name().orElse(id());
+    }
+
     @NotNull
     Optional<String> description();
 
