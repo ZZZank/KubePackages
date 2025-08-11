@@ -51,7 +51,7 @@ public class KubePackagesBinding {
     }
 
     public PackageExporter packageExporter() {
-        return new PackageExporter(this.type);
+        return new PackageExporter(message -> this.type.console.info(message.getString()));
     }
 
     @Info("""

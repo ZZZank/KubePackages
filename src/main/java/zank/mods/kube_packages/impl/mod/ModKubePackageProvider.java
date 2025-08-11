@@ -44,7 +44,7 @@ public class ModKubePackageProvider implements KubePackageProvider {
             return null;
         }
         try (var reader = Files.newBufferedReader(path)) {
-            return KubePackageUtils.loadMetaData(reader)
+            return KubePackageUtils.readMetaData(reader)
                 .resultOrPartial(error -> KubePackages.LOGGER.error(
                     "Error when parsing package metadata in mod '{}': {}",
                     GameUtil.extractModIds(modFile),

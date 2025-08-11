@@ -29,16 +29,11 @@ public class DirKubePackage implements KubePackage {
             return null;
         }
         try (var reader = Files.newBufferedReader(path)) {
-            var metaData = KubePackageUtils.loadMetaDataOrThrow(reader);
+            var metaData = KubePackageUtils.readMetaDataOrThrow(reader);
             return new DirKubePackage(base, metaData);
         } catch (Exception e) {
             return null;
         }
-    }
-
-    public static boolean validate(Path base) {
-        var path = base.resolve(KubePackages.META_DATA_FILE_NAME);
-        return Files.exists(path) && Files.isRegularFile(path);
     }
 
     private final Path base;

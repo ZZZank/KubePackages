@@ -3,6 +3,7 @@ package zank.mods.kube_packages.api;
 import dev.latvian.mods.kubejs.script.*;
 import dev.latvian.mods.kubejs.util.ConsoleJS;
 import zank.mods.kube_packages.api.inject.ScriptPackLoadHelper;
+import zank.mods.kube_packages.utils.GameUtil;
 
 /**
  * @author ZZZank
@@ -13,7 +14,7 @@ public class ScriptLoadContext {
 
     public ScriptLoadContext(ScriptManager manager) {
         this.manager = manager;
-        this.folderName = folderName(type());
+        this.folderName = GameUtil.toFolderName(type());
     }
 
     public ScriptType type() {
@@ -22,10 +23,6 @@ public class ScriptLoadContext {
 
     public String folderName() {
         return folderName;
-    }
-
-    public static String folderName(ScriptType type) {
-        return type.name + "_scripts";
     }
 
     public ScriptManager manager() {

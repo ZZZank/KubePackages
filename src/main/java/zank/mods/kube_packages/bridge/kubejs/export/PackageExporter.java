@@ -9,10 +9,13 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
 import org.apache.commons.io.file.PathUtils;
 import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.meta.PackageMetaData;
+import zank.mods.kube_packages.utils.CodecUtil;
 import zank.mods.kube_packages.utils.GameUtil;
 
 import java.io.File;
@@ -38,7 +41,7 @@ import java.util.zip.ZipOutputStream;
 @Accessors(fluent = true, chain = true)
 public class PackageExporter {
     @Getter(AccessLevel.NONE)
-    private final ScriptType runningOn;
+    private final Consumer<Component> reporter;
 
     private String exportName;
     private ScriptType[] scriptTypes;
@@ -48,18 +51,27 @@ public class PackageExporter {
     private Consumer<SimulatedModsToml> modInfoModifier;
     private boolean debugMode;
 
-    public PackageExporter(ScriptType runningOn) {
-        this.runningOn = Objects.requireNonNull(runningOn);
+    public PackageExporter(Consumer<Component> reporter) {
+        this.reporter = reporter;
     }
 
     public void runAsync() {
-        runningOn.executor.execute(() -> {
-            try {
-                this.run();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        var t = new Thread(
+            () -> {
+                try {
+                    this.run();
+                    report(Component.literal("Package exported to: " + Platform.getGameFolder()
+                        .relativize(KubeJSPaths.EXPORT.resolve(this.exportName))));
+                } catch (IOException e) {
+                    report(Component.literal("Error when exporting packages: ")
+                        .withStyle(ChatFormatting.RED)
+                        .append(Component.literal(e.toString()))
+                    );
+                }
+            }, "Exporter-" + this.exportName
+        );
+        t.setDaemon(true);
+        t.start();
     }
 
     public void run() throws IOException {
@@ -82,6 +94,7 @@ public class PackageExporter {
 
         copyScriptAndAsset(copyTo);
         writeMetadata(copyTo);
+
         if (exportAs == ExportType.ZIP) {
             sealAsCompressedFile(copyTo, ".zip");
         } else if (exportAs == ExportType.MOD) {
@@ -90,9 +103,16 @@ public class PackageExporter {
         }
     }
 
+    private void report(Component message) {
+        var reporter = this.reporter;
+        if (reporter != null) {
+            reporter.accept(message);
+        }
+    }
+
     private void debug(String message) {
         if (this.debugMode) {
-            this.runningOn.console.info(message);
+            report(Component.literal(message));
         }
     }
 
@@ -127,11 +147,7 @@ public class PackageExporter {
         try (var writer = Files.newBufferedWriter(root.resolve(KubePackages.META_DATA_FILE_NAME))) {
             var encoded = PackageMetaData.CODEC
                 .encodeStart(JsonOps.INSTANCE, this.metadata)
-                .getOrThrow(
-                    false, error -> {
-                        throw new RuntimeException(error);
-                    }
-                );
+                .getOrThrow(false, CodecUtil.THROW_ERROR);
             var jsonWriter = KubePackages.GSON.newJsonWriter(writer);
             jsonWriter.setIndent("    ");
             KubePackages.GSON.toJson(encoded, jsonWriter);
@@ -187,18 +203,18 @@ public class PackageExporter {
 
     private void sealAsCompressedFile(Path root, String suffix) throws IOException {
         var filePath = root.getParent().resolve(this.exportName + suffix);
-        try (var out = getOutputStream(filePath)) {
-            var stream = Files.walk(root).filter(Files::isRegularFile);
-            for (var path : (Iterable<Path>) stream::iterator) {
+        try (var zipOutput = getOutputStream(filePath);
+             var fileInput = Files.walk(root).filter(Files::isRegularFile)
+        ) {
+            for (var path : (Iterable<Path>) fileInput::iterator) {
                 var zipEntry = new ZipEntry(root.relativize(path).toString().replace(File.separatorChar, '/'));
 
-                out.putNextEntry(zipEntry);
+                zipOutput.putNextEntry(zipEntry);
                 try (var fIn = new FileInputStream(path.toFile())) {
-                    fIn.transferTo(out);
+                    fIn.transferTo(zipOutput);
                 }
-                out.closeEntry();
+                zipOutput.closeEntry();
             }
-            stream.close();
         }
         debug("compressed file exported to: " + Platform.getGameFolder().relativize(filePath));
         PathUtils.deleteDirectory(root);
