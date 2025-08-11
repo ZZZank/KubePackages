@@ -8,7 +8,6 @@ import zank.mods.kube_packages.api.meta.PackageMetaData;
 import zank.mods.kube_packages.api.meta.dependency.DependencyBuilder;
 import zank.mods.kube_packages.api.meta.MetaDataBuilder;
 import zank.mods.kube_packages.api.meta.dependency.PackageDependency;
-import zank.mods.kube_packages.bridge.kubejs.export.PackageExporter;
 import zank.mods.kube_packages.impl.dependency.SortableKubePackage;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.typings.Info;

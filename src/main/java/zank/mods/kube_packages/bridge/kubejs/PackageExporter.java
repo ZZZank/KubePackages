@@ -1,4 +1,4 @@
-package zank.mods.kube_packages.bridge.kubejs.export;
+package zank.mods.kube_packages.bridge.kubejs;
 
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.mojang.serialization.JsonOps;

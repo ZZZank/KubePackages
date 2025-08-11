@@ -1,4 +1,4 @@
-package zank.mods.kube_packages.bridge.kubejs.export;
+package zank.mods.kube_packages.bridge.kubejs;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

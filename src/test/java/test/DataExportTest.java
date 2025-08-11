@@ -9,7 +9,7 @@ import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.meta.PackageMetaData;
 import zank.mods.kube_packages.api.meta.dependency.DependencySource;
 import zank.mods.kube_packages.api.meta.dependency.DependencyType;
-import zank.mods.kube_packages.bridge.kubejs.export.MetadataToModsToml;
+import zank.mods.kube_packages.bridge.kubejs.MetadataToModsToml;
 import zank.mods.kube_packages.impl.dependency.ImmutableDependency;
 import zank.mods.kube_packages.impl.dependency.ImmutableMetaData;
 import zank.mods.kube_packages.utils.GameUtil;
