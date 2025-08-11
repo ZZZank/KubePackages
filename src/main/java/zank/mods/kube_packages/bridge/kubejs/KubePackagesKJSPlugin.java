@@ -5,6 +5,7 @@ import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.script.BindingsEvent;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.rhino.util.wrap.TypeWrappers;
+import net.minecraftforge.fml.ModList;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.artifact.versioning.VersionRange;
@@ -63,13 +64,25 @@ public class KubePackagesKJSPlugin extends KubeJSPlugin {
         KubePackages.registerProvider(new ModKubePackageProvider());
         //kubejs dummy, for sorting packages
         KubePackages.registerProvider(
-            new DummyKubePackageProvider(List.of(new DummyKubePackage(
-                PackageMetaData.minimal(
-                    KubeJS.MOD_ID,
-                    new DefaultArtifactVersion("1.1.1")
-                ), cx -> null
-            )))
+            new DummyKubePackageProvider(List.of(
+                new DummyKubePackage(createKubeJSMetadata(), cx -> null)
+            ))
         );
+    }
+
+    private static PackageMetaData createKubeJSMetadata() {
+        var info = ModList.get()
+            .getModContainerById(KubeJS.MOD_ID)
+            .orElseThrow()
+            .getModInfo();
+        return PackageMetaData.builder()
+            .id(KubeJS.MOD_ID)
+            .name("KubeJS")
+            .license(info.getOwningFile().getLicense())
+            .version(info.getVersion())
+            .description("""
+                Dummy package injected by KubePackages itself, for easier dependency management""")
+            .build();
     }
 
     @Override
