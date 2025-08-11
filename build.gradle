@@ -15,6 +15,8 @@
 //
 //
 
+
+import net.fabricmc.loom.task.RunGameTask
 import org.jetbrains.changelog.Changelog;
 
 plugins {
@@ -199,6 +201,10 @@ tasks.withType(JavaCompile).configureEach {
     options.compilerArgs << '-parameters'
 
 //    options.release = javaTarget
+}
+
+tasks.withType(RunGameTask).configureEach {
+    it.jvmArgs = it.jvmArgs + ["-Xmx1024m"]
 }
 
 jar {
