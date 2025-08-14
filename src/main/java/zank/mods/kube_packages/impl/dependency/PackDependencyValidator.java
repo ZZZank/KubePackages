@@ -1,6 +1,5 @@
 package zank.mods.kube_packages.impl.dependency;
 
-import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.KubePackage;
 import zank.mods.kube_packages.api.meta.dependency.DependencyType;
 import zank.mods.kube_packages.api.meta.dependency.PackageDependency;
@@ -31,14 +30,14 @@ public class PackDependencyValidator {
         }
         for (var pack : packs) {
             for (var dependency : pack.getMetaData().dependencies()) {
-                validateSingle(pack, dependency, report);
+                validateSingleDependency(pack, dependency, report);
             }
         }
         named = null;
         return report;
     }
 
-    protected void validateSingle(KubePackage pack, PackageDependency dependency, DependencyReport report) {
+    protected void validateSingleDependency(KubePackage pack, PackageDependency dependency, DependencyReport report) {
         boolean targetPresent;
         ArtifactVersion targetVersion;
         switch (dependency.source()) {
@@ -74,10 +73,12 @@ public class PackDependencyValidator {
                 } else if (dependency.versionRange().isPresent()) {
                     if (targetVersion == null) {
                         // specific version but no version
-                        reporter.accept(dependency.toReport(pack).append(", but ContentPack with such id did not provide a version info"));
+                        reporter.accept(dependency.toReport(pack)
+                            .append(", but ContentPack with such id did not provide a version info"));
                     } else if (!dependency.versionRange().get().containsVersion(targetVersion)) {
                         // specific version but not matched
-                        reporter.accept(dependency.toReport(pack).append(", but ContentPack with such id is at version '%s'".formatted(targetVersion)));
+                        reporter.accept(dependency.toReport(pack)
+                            .append(", but ContentPack with such id is at version '%s'".formatted(targetVersion)));
                     }
                 }
             }
@@ -119,33 +120,51 @@ public class PackDependencyValidator {
                 continue;
             }
 
-            var error = Component.translatable(
-                "%s and %s declared the same id '%s'",
-                existed,
-                pack,
-                id
-            );
-            switch (this.duplicationHandling) {
-                case ERROR -> report.addError(error);
-                case PREFER_LAST -> {
-                    named.put(id, pack);
-                    KubePackages.LOGGER.warn(Component.empty()
-                        .append(error)
-                        .append(", overwriting old one")
-                        .getString());
-                }
-                case PREFER_FIRST -> KubePackages.LOGGER.warn(Component.empty()
-                    .append(error)
-                    .append(", keeping old one")
-                    .getString());
-            }
+            handleDupedPackage(report, pack, existed, named);
         }
         return named;
+    }
+
+    private void handleDupedPackage(
+        DependencyReport report,
+        KubePackage pack,
+        KubePackage existed,
+        Map<String, KubePackage> named
+    ) {
+        var id = existed.id();
+        var error = Component.translatable(
+            "%s and %s declared package with the same id '%s'",
+            existed,
+            pack,
+            id
+        );
+        switch (this.duplicationHandling) {
+            case ERROR -> report.addError(error);
+            case PREFER_LAST -> {
+                named.put(id, pack);
+                report.addWarning(error.append(", overwriting old one"));
+            }
+            case PREFER_FIRST -> report.addWarning(error.append(", keeping old one"));
+            case PREFER_NEWER -> {
+                var version = pack.getMetaData().version();
+                var existedVersion = existed.getMetaData().version();
+                var existedComparedToFound = existedVersion.compareTo(version);
+                if (existedComparedToFound == 0) {
+                    report.addError(error);
+                } else if (existedComparedToFound > 0) {// existed is newer
+                    report.addWarning(error.append(", keeping old one"));
+                } else { // < 0, existed is older
+                    named.put(id, pack);
+                    report.addWarning(error.append(", overwriting old one"));
+                }
+            }
+        }
     }
 
     public enum DupeHandling {
         ERROR,
         PREFER_FIRST,
-        PREFER_LAST
+        PREFER_LAST,
+        PREFER_NEWER
     }
 }
