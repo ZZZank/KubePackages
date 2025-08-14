@@ -1,5 +1,7 @@
 package zank.mods.kube_packages.impl.dependency;
 
+import lombok.Getter;
+import lombok.experimental.Accessors;
 import org.slf4j.event.Level;
 import zank.mods.kube_packages.api.KubePackage;
 import zank.mods.kube_packages.api.meta.dependency.DependencyType;
@@ -15,27 +17,34 @@ import java.util.function.Consumer;
 /**
  * @author ZZZank
  */
+@Getter
+@Accessors(fluent = true)
 public class PackDependencyValidator {
     private final DupeHandling dupeHandling;
-    private Map<String, KubePackage> named;
+    private final Map<String, KubePackage> indexed;
+    private final DependencyReport report;
+    private boolean used = false;
 
     public PackDependencyValidator(DupeHandling dupeHandling) {
         this.dupeHandling = Objects.requireNonNull(dupeHandling);
+        indexed = new HashMap<>();
+        report = new DependencyReport();
     }
 
-    public DependencyReport validate(Collection<KubePackage> packs) {
-        var report = new DependencyReport();
-        this.named = indexAndValidateId(packs, report);
+    public void validate(Collection<? extends KubePackage> packs) {
+        if (used) {
+            throw new IllegalStateException("This validator instance has been used");
+        }
+        used = true;
+        indexAndValidateId(packs, report);
         if (!report.getReportsAt(Level.ERROR).isEmpty() && dupeHandling == DupeHandling.ERROR) {
-            return report;
+            return;
         }
         for (var pack : packs) {
             for (var dependency : pack.metaData().dependencies()) {
                 validateSingleDependency(pack, dependency, report);
             }
         }
-        named = null;
-        return report;
     }
 
     protected void validateSingleDependency(KubePackage pack, PackageDependency dependency, DependencyReport report) {
@@ -43,7 +52,7 @@ public class PackDependencyValidator {
         ArtifactVersion targetVersion;
         switch (dependency.source()) {
             case PACK -> {
-                var target = this.named.get(dependency.id());
+                var target = this.indexed.get(dependency.id());
                 targetPresent = target != null;
                 targetVersion = targetPresent
                     ? target.metaData().version()
@@ -107,31 +116,21 @@ public class PackDependencyValidator {
         }
     }
 
-    private Map<String, KubePackage> indexAndValidateId(
-        Collection<KubePackage> packs,
-        DependencyReport report
-    ) {
-        var named = new HashMap<String, KubePackage>();
+    private void indexAndValidateId(Collection<? extends KubePackage> packs, DependencyReport report) {
         for (var pack : packs) {
             var id = pack.id();
-            var existed = named.get(id);
+            var existed = indexed.get(id);
 
             if (existed == null) {
-                named.put(id, pack);
+                indexed.put(id, pack);
                 continue;
             }
 
-            handleDupedPackage(report, pack, existed, named);
+            handleDupedPackage(report, pack, existed);
         }
-        return named;
     }
 
-    private void handleDupedPackage(
-        DependencyReport report,
-        KubePackage pack,
-        KubePackage existed,
-        Map<String, KubePackage> named
-    ) {
+    private void handleDupedPackage(DependencyReport report, KubePackage pack, KubePackage existed) {
         var id = existed.id();
         var error = Component.translatable(
             "%s and %s declared package with the same id '%s'",
@@ -142,10 +141,10 @@ public class PackDependencyValidator {
         switch (this.dupeHandling) {
             case ERROR -> report.addError(error);
             case PREFER_LAST -> {
-                named.put(id, pack);
-                report.addWarning(error.append(", overwriting old one"));
+                indexed.put(id, pack);
+                report.addWarning(error.append(", overwriting the package found earlier"));
             }
-            case PREFER_FIRST -> report.addWarning(error.append(", keeping old one"));
+            case PREFER_FIRST -> report.addWarning(error.append(", keeping the package found earlier"));
             case PREFER_NEWER -> {
                 var version = pack.metaData().version();
                 var existedVersion = existed.metaData().version();
@@ -153,10 +152,10 @@ public class PackDependencyValidator {
                 if (existedComparedToFound == 0) {
                     report.addError(error);
                 } else if (existedComparedToFound > 0) {// existed is newer
-                    report.addWarning(error.append(", keeping old one"));
+                    report.addWarning(error.append(", keeping the package found earlier"));
                 } else { // < 0, existed is older
-                    named.put(id, pack);
-                    report.addWarning(error.append(", overwriting old one"));
+                    indexed.put(id, pack);
+                    report.addWarning(error.append(", overwriting the package found earlier"));
                 }
             }
         }

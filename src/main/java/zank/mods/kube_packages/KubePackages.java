@@ -1,16 +1,21 @@
 package zank.mods.kube_packages;
 
 import com.google.gson.Gson;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.event.Level;
 import zank.mods.kube_packages.api.KubePackage;
 import zank.mods.kube_packages.api.KubePackageProvider;
+import zank.mods.kube_packages.impl.dependency.DependencyReport;
+import zank.mods.kube_packages.impl.dependency.PackDependencyValidator;
 
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * @author ZZZank
@@ -37,15 +42,45 @@ public class KubePackages {
         return Collections.unmodifiableList(PROVIDERS);
     }
 
-    public static synchronized List<KubePackage> getPackages() {
+    public static List<KubePackage> getPackages(BiConsumer<Level, Component> perReportConsumer) {
+        Objects.requireNonNull(perReportConsumer);
+        return getPackages(reports -> {
+            for (var entry : reports.viewAllReports().entrySet()) {
+                var level = entry.getKey();
+                for (var text : entry.getValue()) {
+                    perReportConsumer.accept(level, text);
+                }
+            }
+        });
+    }
+
+    public static synchronized List<KubePackage> getPackages(Consumer<DependencyReport> reportsConsumer) {
         if (cachedPackages == null) {
-            cachedPackages = PROVIDERS.stream()
+            var provided = PROVIDERS.stream()
                 .map(KubePackageProvider::provide)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toUnmodifiableList());
-            LOGGER.info("Collected {} packages: {}", cachedPackages.size(), cachedPackages);
+                .toList();
+
+            var validator = new PackDependencyValidator(KubePackagesConfig.DUPE_HANDLING.get());
+            validator.validate(provided);
+            var report = validator.report();
+            reportsConsumer.accept(report);
+
+            cachedPackages = List.copyOf(validator.indexed().values());
+            LOGGER.info(
+                "Collected {} packages with {} errors, {} warnings and {} infos: {}",
+                cachedPackages.size(),
+                report.getReportsAt(Level.ERROR).size(),
+                report.getReportsAt(Level.WARN).size(),
+                report.getReportsAt(Level.INFO).size(),
+                cachedPackages
+            );
         }
         return cachedPackages;
+    }
+
+    public static List<KubePackage> getPackages() {
+        return getPackages((level, text) -> KubePackages.LOGGER.atLevel(level).log(text.getString()));
     }
 
     public static void clearPackages() {

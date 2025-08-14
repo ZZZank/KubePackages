@@ -1,14 +1,10 @@
 package zank.mods.kube_packages.bridge.mixin;
 
-import net.minecraft.network.chat.Component;
-import org.slf4j.event.Level;
 import zank.mods.kube_packages.KubePackages;
-import zank.mods.kube_packages.KubePackagesConfig;
 import zank.mods.kube_packages.api.ScriptLoadContext;
 import zank.mods.kube_packages.api.inject.ScriptPackLoadHelper;
 import zank.mods.kube_packages.api.inject.SortablePackageHolder;
 import zank.mods.kube_packages.impl.dependency.PackDependencyBuilder;
-import zank.mods.kube_packages.impl.dependency.PackDependencyValidator;
 import zank.mods.kube_packages.impl.dependency.SortableKubePackage;
 import zank.mods.kube_packages.utils.topo.TopoNotSolved;
 import zank.mods.kube_packages.utils.topo.TopoPreconditionFailed;
@@ -20,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 @Mixin(value = ScriptManager.class, remap = false)
@@ -34,21 +31,28 @@ public abstract class MixinScriptManager implements SortablePackageHolder, Scrip
     @Redirect(method = "load", at = @At(value = "INVOKE", target = "Ljava/util/Map;values()Ljava/util/Collection;"))
     private Collection<ScriptPack> injectPacks(Map<String, ScriptPack> original) {
         var context = new ScriptLoadContext((ScriptManager) (Object) this);
-        var packages = KubePackages.getPackages();
+        var console = context.console();
 
-        var report = new PackDependencyValidator(KubePackagesConfig.DUPE_HANDLING.get())
-            .validate(packages);
-        report.getReportsAt(Level.INFO).stream().map(Component::getString).forEach(context.console()::info);
-        report.getReportsAt(Level.WARN).stream().map(Component::getString).forEach(context.console()::warn);
-        report.getReportsAt(Level.ERROR).stream().map(Component::getString).forEach(context.console()::error);
-        if (!report.getReportsAt(Level.ERROR).isEmpty()) {
+        var hasError = new AtomicBoolean(false);
+        var packages = KubePackages.getPackages((level, text) -> {
+            switch (level) {
+                case ERROR -> {
+                    hasError.set(true);
+                    console.error(text.getString());
+                }
+                case WARN -> console.warn(text.getString());
+                case INFO -> console.info(text.getString());
+            }
+        });
+
+        if (hasError.get()) {
+            console.error("KubePackages found error when loading packages, ignoring all installed packages");
             return original.values();
         }
 
         var sortablePacks = new HashMap<String, SortableKubePackage>();
 
         for (var pkg : packages) {
-            KubePackages.LOGGER.debug("Found package: {}", pkg);
             var scriptPack = pkg.getScript(context);
             var namespace = pkg.id();
 
@@ -81,7 +85,7 @@ public abstract class MixinScriptManager implements SortablePackageHolder, Scrip
                 .flatMap(Collection::stream)
                 .toList();
         } catch (TopoNotSolved | TopoPreconditionFailed e) {
-            context.console().error("Unable to sort packages, ignoring all installed packages", e);
+            console.error("Unable to sort packages, ignoring all installed packages", e);
             return original.values();
         }
     }
