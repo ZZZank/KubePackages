@@ -14,7 +14,7 @@ import java.util.function.Consumer;
  */
 public interface KubePackage {
 
-    PackageMetaData getMetaData();
+    PackageMetaData metaData();
 
     @Nullable
     ScriptPack getScript(ScriptLoadContext context);
@@ -23,7 +23,7 @@ public interface KubePackage {
 
     @NotNull
     default String id() {
-        return this.getMetaData().id();
+        return this.metaData().id();
     }
 
     @NotNull

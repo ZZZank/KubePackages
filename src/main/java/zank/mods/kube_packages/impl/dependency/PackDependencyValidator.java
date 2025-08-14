@@ -29,7 +29,7 @@ public class PackDependencyValidator {
             return report;
         }
         for (var pack : packs) {
-            for (var dependency : pack.getMetaData().dependencies()) {
+            for (var dependency : pack.metaData().dependencies()) {
                 validateSingleDependency(pack, dependency, report);
             }
         }
@@ -45,7 +45,7 @@ public class PackDependencyValidator {
                 var target = this.named.get(dependency.id());
                 targetPresent = target != null;
                 targetVersion = targetPresent
-                    ? target.getMetaData().version()
+                    ? target.metaData().version()
                     : null;
             }
             case MOD -> {
@@ -146,8 +146,8 @@ public class PackDependencyValidator {
             }
             case PREFER_FIRST -> report.addWarning(error.append(", keeping old one"));
             case PREFER_NEWER -> {
-                var version = pack.getMetaData().version();
-                var existedVersion = existed.getMetaData().version();
+                var version = pack.metaData().version();
+                var existedVersion = existed.metaData().version();
                 var existedComparedToFound = existedVersion.compareTo(version);
                 if (existedComparedToFound == 0) {
                     report.addError(error);

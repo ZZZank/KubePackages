@@ -86,7 +86,7 @@ public class KubePackagesCommands {
         var packages = KubePackages.getPackages();
         reporter.accept(Component.translatable("Found %s packages:", packages.size()));
         for (var pkg : packages) {
-            var metaData = pkg.getMetaData();
+            var metaData = pkg.metaData();
             reporter.accept(
                 Component.empty()
                     .append(Component.literal("- ").kjs$darkGray())

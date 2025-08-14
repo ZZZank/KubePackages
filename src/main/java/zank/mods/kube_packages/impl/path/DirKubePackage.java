@@ -45,7 +45,7 @@ public class DirKubePackage implements KubePackage {
     }
 
     @Override
-    public PackageMetaData getMetaData() {
+    public PackageMetaData metaData() {
         return metaData;
     }
 

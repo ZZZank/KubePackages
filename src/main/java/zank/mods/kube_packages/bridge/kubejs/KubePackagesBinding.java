@@ -65,7 +65,7 @@ public class KubePackagesBinding {
         var sortableContentPack = pkgHolder.kpkg$sortablePacks().get(id);
         return Optional.ofNullable(sortableContentPack)
             .map(SortableKubePackage::pack)
-            .map(KubePackage::getMetaData)
+            .map(KubePackage::metaData)
             .orElse(null);
     }
 
@@ -74,7 +74,7 @@ public class KubePackagesBinding {
     public Map<String, PackageMetaData> viewAllMetadata() {
         return Collections.unmodifiableMap(Maps.transformValues(
             pkgHolder.kpkg$sortablePacks(),
-            s -> s.pack().getMetaData()
+            s -> s.pack().metaData()
         ));
     }
 
