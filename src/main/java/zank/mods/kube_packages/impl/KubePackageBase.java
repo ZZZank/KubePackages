@@ -2,7 +2,7 @@ package zank.mods.kube_packages.impl;
 
 import zank.mods.kube_packages.api.KubePackage;
 import zank.mods.kube_packages.api.ScriptLoadContext;
-import zank.mods.kube_packages.api.meta.PackageMetaData;
+import zank.mods.kube_packages.api.meta.PackageMetadata;
 import dev.latvian.mods.kubejs.script.ScriptPack;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import org.jetbrains.annotations.Nullable;
@@ -16,9 +16,9 @@ import java.util.Optional;
  */
 public abstract class KubePackageBase implements KubePackage {
     protected final Map<ScriptType, Optional<ScriptPack>> packs = new EnumMap<>(ScriptType.class);
-    protected final PackageMetaData metaData;
+    protected final PackageMetadata metaData;
 
-    protected KubePackageBase(PackageMetaData metaData) {
+    protected KubePackageBase(PackageMetadata metaData) {
         this.metaData = metaData;
     }
 
@@ -34,7 +34,7 @@ public abstract class KubePackageBase implements KubePackage {
     }
 
     @Override
-    public PackageMetaData metaData() {
+    public PackageMetadata metadata() {
         return metaData;
     }
 }

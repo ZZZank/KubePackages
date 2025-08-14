@@ -14,7 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
 import org.apache.commons.io.file.PathUtils;
 import zank.mods.kube_packages.KubePackages;
-import zank.mods.kube_packages.api.meta.PackageMetaData;
+import zank.mods.kube_packages.api.meta.PackageMetadata;
 import zank.mods.kube_packages.utils.CodecUtil;
 import zank.mods.kube_packages.utils.GameUtil;
 
@@ -48,7 +48,7 @@ public class PackageExporter {
     private ScriptType[] scriptTypes;
     private PackType[] resourceTypes;
     private ExportType exportAs;
-    private PackageMetaData metadata;
+    private PackageMetadata metadata;
     private Consumer<SimulatedModsToml> modInfoModifier;
     private boolean debugMode;
 
@@ -145,7 +145,7 @@ public class PackageExporter {
 
     private void writeMetadata(Path root) throws IOException {
         try (var writer = Files.newBufferedWriter(root.resolve(KubePackages.META_DATA_FILE_NAME))) {
-            var encoded = PackageMetaData.CODEC
+            var encoded = PackageMetadata.CODEC
                 .encodeStart(JsonOps.INSTANCE, this.metadata)
                 .getOrThrow(false, CodecUtil.THROW_ERROR);
             var jsonWriter = KubePackages.GSON.newJsonWriter(writer);

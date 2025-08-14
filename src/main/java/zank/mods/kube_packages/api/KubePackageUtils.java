@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import zank.mods.kube_packages.KubePackages;
-import zank.mods.kube_packages.api.meta.PackageMetaData;
+import zank.mods.kube_packages.api.meta.PackageMetadata;
 import dev.latvian.mods.kubejs.script.ScriptPack;
 import dev.latvian.mods.kubejs.script.ScriptPackInfo;
 import zank.mods.kube_packages.utils.CodecUtil;
@@ -22,27 +22,27 @@ public class KubePackageUtils {
         return new ScriptPack(context.manager(), new ScriptPackInfo(id, ""));
     }
 
-    public static DataResult<PackageMetaData> readMetaData(Reader reader) {
+    public static DataResult<PackageMetadata> readMetadata(Reader reader) {
         var json = KubePackages.GSON.fromJson(reader, JsonObject.class);
-        return PackageMetaData.CODEC.parse(JsonOps.INSTANCE, json);
+        return PackageMetadata.CODEC.parse(JsonOps.INSTANCE, json);
     }
 
-    public static DataResult<PackageMetaData> readMetaData(InputStream stream) {
+    public static DataResult<PackageMetadata> readMetadata(InputStream stream) {
         try (var reader = FileUtil.stream2reader(stream)) {
-            return readMetaData(reader);
+            return readMetadata(reader);
         } catch (IOException e) {
             return DataResult.error(e::toString);
         }
     }
 
-    public static PackageMetaData readMetaDataOrThrow(InputStream stream) {
-        return readMetaData(stream)
+    public static PackageMetadata readMetadataOrThrow(InputStream stream) {
+        return readMetadata(stream)
             .resultOrPartial(CodecUtil.THROW_ERROR)
             .orElseThrow();
     }
 
-    public static PackageMetaData readMetaDataOrThrow(Reader reader) {
-        return readMetaData(reader)
+    public static PackageMetadata readMetadataOrThrow(Reader reader) {
+        return readMetadata(reader)
             .resultOrPartial(CodecUtil.THROW_ERROR)
             .orElseThrow();
     }

@@ -17,7 +17,7 @@ import net.minecraftforge.server.command.EnumArgument;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.KubePackageUtils;
-import zank.mods.kube_packages.api.meta.PackageMetaData;
+import zank.mods.kube_packages.api.meta.PackageMetadata;
 import zank.mods.kube_packages.bridge.kubejs.MetadataBuilderJS;
 import zank.mods.kube_packages.bridge.kubejs.PackageExporter;
 import zank.mods.kube_packages.bridge.kubejs.PackageExporter.ExportType;
@@ -50,16 +50,17 @@ public class KubePackagesCommands {
                 .requires(spOrOp)
                 .then(Commands.argument("exportAs", EnumArgument.enumArgument(ExportType.class))
                     .then(Commands.literal("fileMetadata")
-                        .then(Commands.argument("pathToMetadata", StringArgumentType.string()).executes(cx -> {
-                            PackageMetaData metadata;
-                            var pathStr = cx.getArgument("pathToMetadata", String.class);
-                            try (var reader = Files.newBufferedReader(GameUtil.resolveSafe(pathStr))) {
-                                metadata = KubePackageUtils.readMetaDataOrThrow(reader);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                            return exportPackage(cx, metadata);
-                        })))
+                        .then(Commands.argument("pathToMetadata", StringArgumentType.string())
+                            .executes(cx -> {
+                                PackageMetadata metadata;
+                                var pathStr = cx.getArgument("pathToMetadata", String.class);
+                                try (var reader = Files.newBufferedReader(GameUtil.resolveSafe(pathStr))) {
+                                    metadata = KubePackageUtils.readMetadataOrThrow(reader);
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                return exportPackage(cx, metadata);
+                            })))
                     .then(Commands.literal("cacheMetadata")
                         .then(Commands.argument("id", StringArgumentType.string())
                             .suggests((cx, builder) -> SharedSuggestionProvider.suggest(
@@ -72,28 +73,30 @@ public class KubePackagesCommands {
                             })))
                     .then(Commands.literal("minimalMetadata")
                         .then(Commands.argument("id", StringArgumentType.string())
-                            .then(Commands.argument("version", StringArgumentType.string()).executes(cx -> {
-                                var id = cx.getArgument("id", String.class);
-                                var version = cx.getArgument("version", String.class);
-                                return exportPackage(
-                                    cx,
-                                    PackageMetaData.minimal(id, new DefaultArtifactVersion(version))
-                                );
-                            }))))))
+                            .then(Commands.argument("version", StringArgumentType.string())
+                                .executes(cx -> {
+                                    var id = cx.getArgument("id", String.class);
+                                    var version = cx.getArgument("version", String.class);
+                                    return exportPackage(
+                                        cx,
+                                        PackageMetadata.minimal(id, new DefaultArtifactVersion(version))
+                                    );
+                                }))))))
             .then(Commands.literal("package")
-                .then(Commands.literal("list").executes(KubePackagesCommands::listPackages))
+                .then(Commands.literal("list")
+                    .executes(KubePackagesCommands::listPackages))
                 .then(Commands.literal("findInstalled")
                     .then(Commands.argument("id", StringArgumentType.string())
                         .executes(KubePackagesCommands::showPackage))));
         dispatcher.register(command);
     }
 
-    private static Component prettyPrintMetadata(PackageMetaData metaData) {
-        var tag = PackageMetaData.CODEC.encodeStart(NbtOps.INSTANCE, metaData).getOrThrow(true, CodecUtil.THROW_ERROR);
+    private static Component prettyPrintMetadata(PackageMetadata metaData) {
+        var tag = PackageMetadata.CODEC.encodeStart(NbtOps.INSTANCE, metaData).getOrThrow(true, CodecUtil.THROW_ERROR);
         return new TextComponentTagVisitor("  ", 0).visit(tag);
     }
 
-    private static int exportPackage(CommandContext<CommandSourceStack> cx, PackageMetaData metadata)
+    private static int exportPackage(CommandContext<CommandSourceStack> cx, PackageMetadata metadata)
         throws CommandSyntaxException {
         var reporter = extractReporter(cx);
         KubePackages.LOGGER.info("Package export requested through command");
@@ -117,7 +120,7 @@ public class KubePackagesCommands {
         var packages = KubePackages.getPackages().values();
         reporter.accept(Component.translatable("Found %s packages:", packages.size()));
         for (var pkg : packages) {
-            var metaData = pkg.metaData();
+            var metaData = pkg.metadata();
             reporter.accept(Component.empty()
                 .append(Component.literal("- ").kjs$darkGray())
                 .append(Component.translatable("%s(%s): %s", metaData.displayName(), metaData.id(), metaData.version())
@@ -141,7 +144,7 @@ public class KubePackagesCommands {
             var text = Component.literal("Found ")
                 .append(found.toString())
                 .append(": ")
-                .append(prettyPrintMetadata(found.metaData()));
+                .append(prettyPrintMetadata(found.metadata()));
             reporter.accept(text);
         }
 

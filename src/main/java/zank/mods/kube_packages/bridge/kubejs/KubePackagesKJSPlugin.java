@@ -10,7 +10,7 @@ import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.artifact.versioning.VersionRange;
 import zank.mods.kube_packages.KubePackages;
-import zank.mods.kube_packages.api.meta.PackageMetaData;
+import zank.mods.kube_packages.api.meta.PackageMetadata;
 import zank.mods.kube_packages.bridge.KubePackagePaths;
 import zank.mods.kube_packages.impl.dummy.DummyKubePackage;
 import zank.mods.kube_packages.impl.dummy.DummyKubePackageProvider;
@@ -63,12 +63,12 @@ public class KubePackagesKJSPlugin extends KubeJSPlugin {
         );
     }
 
-    private static PackageMetaData createKubeJSMetadata() {
+    private static PackageMetadata createKubeJSMetadata() {
         var info = ModList.get()
             .getModContainerById(KubeJS.MOD_ID)
             .orElseThrow()
             .getModInfo();
-        return PackageMetaData.builder()
+        return PackageMetadata.builder()
             .id(KubeJS.MOD_ID)
             .name("KubeJS")
             .license(info.getOwningFile().getLicense())

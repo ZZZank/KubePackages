@@ -4,7 +4,7 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import zank.mods.kube_packages.api.KubePackage;
 import zank.mods.kube_packages.api.ScriptLoadContext;
-import zank.mods.kube_packages.api.meta.PackageMetaData;
+import zank.mods.kube_packages.api.meta.PackageMetadata;
 import dev.latvian.mods.kubejs.script.ScriptPack;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,10 +15,10 @@ import java.util.function.Function;
  * @author ZZZank
  */
 public class DummyKubePackage implements KubePackage {
-    private final PackageMetaData metaData;
+    private final PackageMetadata metaData;
     private final Function<ScriptLoadContext, ScriptPack> toPack;
 
-    public DummyKubePackage(PackageMetaData metaData, Function<ScriptLoadContext, ScriptPack> toPack) {
+    public DummyKubePackage(PackageMetadata metaData, Function<ScriptLoadContext, ScriptPack> toPack) {
         this.metaData = metaData;
         this.toPack = toPack;
     }
@@ -33,7 +33,7 @@ public class DummyKubePackage implements KubePackage {
     }
 
     @Override
-    public PackageMetaData metaData() {
+    public PackageMetadata metadata() {
         return metaData;
     }
 

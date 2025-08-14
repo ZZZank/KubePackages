@@ -6,7 +6,7 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import zank.mods.kube_packages.api.KubePackageUtils;
 import zank.mods.kube_packages.api.ScriptLoadContext;
-import zank.mods.kube_packages.api.meta.PackageMetaData;
+import zank.mods.kube_packages.api.meta.PackageMetadata;
 import zank.mods.kube_packages.impl.KubePackageBase;
 import dev.latvian.mods.kubejs.script.ScriptFileInfo;
 import dev.latvian.mods.kubejs.script.ScriptPack;
@@ -25,7 +25,7 @@ import java.util.zip.ZipFile;
 public class ZipKubePackage extends KubePackageBase {
     private final Path path;
 
-    public ZipKubePackage(Path path, PackageMetaData metaData) {
+    public ZipKubePackage(Path path, PackageMetadata metaData) {
         super(metaData);
         this.path = path;
     }

@@ -2,7 +2,7 @@ package zank.mods.kube_packages.api;
 
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
-import zank.mods.kube_packages.api.meta.PackageMetaData;
+import zank.mods.kube_packages.api.meta.PackageMetadata;
 import dev.latvian.mods.kubejs.script.ScriptPack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,7 +14,7 @@ import java.util.function.Consumer;
  */
 public interface KubePackage {
 
-    PackageMetaData metaData();
+    PackageMetadata metadata();
 
     @Nullable
     ScriptPack getScript(ScriptLoadContext context);
@@ -23,7 +23,7 @@ public interface KubePackage {
 
     @NotNull
     default String id() {
-        return this.metaData().id();
+        return this.metadata().id();
     }
 
     @NotNull

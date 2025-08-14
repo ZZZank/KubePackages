@@ -8,7 +8,7 @@ import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.KubePackage;
 import zank.mods.kube_packages.api.KubePackageUtils;
 import zank.mods.kube_packages.api.ScriptLoadContext;
-import zank.mods.kube_packages.api.meta.PackageMetaData;
+import zank.mods.kube_packages.api.meta.PackageMetadata;
 import dev.latvian.mods.kubejs.KubeJS;
 import dev.latvian.mods.kubejs.script.ScriptPack;
 import dev.latvian.mods.kubejs.script.ScriptSource;
@@ -29,7 +29,7 @@ public class DirKubePackage implements KubePackage {
             return null;
         }
         try (var reader = Files.newBufferedReader(path)) {
-            var metaData = KubePackageUtils.readMetaDataOrThrow(reader);
+            var metaData = KubePackageUtils.readMetadataOrThrow(reader);
             return new DirKubePackage(base, metaData);
         } catch (Exception e) {
             return null;
@@ -37,15 +37,15 @@ public class DirKubePackage implements KubePackage {
     }
 
     private final Path base;
-    private final PackageMetaData metaData;
+    private final PackageMetadata metaData;
 
-    public DirKubePackage(Path base, PackageMetaData metaData) {
+    public DirKubePackage(Path base, PackageMetadata metaData) {
         this.base = base;
         this.metaData = metaData;
     }
 
     @Override
-    public PackageMetaData metaData() {
+    public PackageMetadata metadata() {
         return metaData;
     }
 

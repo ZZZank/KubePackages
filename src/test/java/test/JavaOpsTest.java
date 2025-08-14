@@ -4,11 +4,11 @@ import com.google.common.base.Suppliers;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import zank.mods.kube_packages.api.meta.PackageMetaData;
+import zank.mods.kube_packages.api.meta.PackageMetadata;
 import zank.mods.kube_packages.api.meta.dependency.DependencySource;
 import zank.mods.kube_packages.api.meta.dependency.DependencyType;
 import zank.mods.kube_packages.impl.dependency.ImmutableDependency;
-import zank.mods.kube_packages.impl.dependency.ImmutableMetaData;
+import zank.mods.kube_packages.impl.dependency.ImmutableMetadata;
 import zank.mods.kube_packages.utils.GameUtil;
 import zank.mods.kube_packages.utils.JavaOps;
 
@@ -20,8 +20,8 @@ import java.util.function.Supplier;
  */
 public class JavaOpsTest {
 
-    private static final Supplier<PackageMetaData> META_DATA = Suppliers.memoize(
-        () -> new ImmutableMetaData(
+    private static final Supplier<PackageMetadata> META_DATA = Suppliers.memoize(
+        () -> new ImmutableMetadata(
             "examplemod",
             Optional.of("Exampl"),
             Optional.of("""
@@ -45,7 +45,7 @@ public class JavaOpsTest {
     @Test
     public void test() {
         var meta = META_DATA.get();
-        var decoded = PackageMetaData.CODEC.encodeStart(JavaOps.INSTANCE, meta);
+        var decoded = PackageMetadata.CODEC.encodeStart(JavaOps.INSTANCE, meta);
         var decodedMetadata = (Map<?, ?>) decoded
             .resultOrPartial(System.err::println)
             .orElseThrow();

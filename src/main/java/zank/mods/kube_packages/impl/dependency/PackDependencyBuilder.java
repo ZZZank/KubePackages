@@ -17,7 +17,7 @@ public class PackDependencyBuilder {
             .collect(Collectors.toMap(SortableKubePackage::id, Function.identity()));
         for (var sortable : sortables) {
 
-            for (var dependency : sortable.pack().metaData().dependencies()) {
+            for (var dependency : sortable.pack().metadata().dependencies()) {
                 if (dependency.type() != DependencyType.REQUIRED
                     && dependency.type() != DependencyType.OPTIONAL) {
                     continue;

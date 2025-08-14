@@ -3,7 +3,7 @@ package zank.mods.kube_packages.impl.mod;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.Pack;
 import net.minecraftforge.forgespi.language.IModFileInfo;
-import zank.mods.kube_packages.api.meta.PackageMetaData;
+import zank.mods.kube_packages.api.meta.PackageMetadata;
 import zank.mods.kube_packages.impl.zip.ZipKubePackage;
 import zank.mods.kube_packages.utils.GameUtil;
 
@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 public class ModFileKubePackage extends ZipKubePackage {
     private final IModFileInfo modFile;
 
-    public ModFileKubePackage(IModFileInfo modFile, PackageMetaData metaData) {
+    public ModFileKubePackage(IModFileInfo modFile, PackageMetadata metaData) {
         super(modFile.getFile().getFilePath(), metaData);
         this.modFile = modFile;
     }

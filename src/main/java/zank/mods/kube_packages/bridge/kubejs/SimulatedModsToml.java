@@ -8,7 +8,7 @@ import net.minecraftforge.jarjar.metadata.json.ArtifactVersionSerializer;
 import net.minecraftforge.jarjar.metadata.json.VersionRangeSerializer;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.VersionRange;
-import zank.mods.kube_packages.api.meta.PackageMetaData;
+import zank.mods.kube_packages.api.meta.PackageMetadata;
 import zank.mods.kube_packages.api.meta.dependency.DependencySource;
 import zank.mods.kube_packages.api.meta.dependency.DependencyType;
 import zank.mods.kube_packages.api.meta.dependency.LoadOrdering;
@@ -49,7 +49,7 @@ public class SimulatedModsToml {
         .versionRange(GameUtil.versionRangeFromSpecOrThrow("[1.20.1,)"))
         .build();
 
-    public static SimulatedModsToml buildFromPackage(PackageMetaData metadata) {
+    public static SimulatedModsToml buildFromPackage(PackageMetadata metadata) {
         var built = new SimulatedModsToml();
         built.license = metadata.license().orElse("Unknown License");
         built.mods = List.of(SimulatedModInfo.buildFromPackage(metadata));
@@ -79,7 +79,7 @@ public class SimulatedModsToml {
     public Map<String, List<SimulatedModDependency>> dependencies;
 
     public static class SimulatedModInfo {
-        public static SimulatedModInfo buildFromPackage(PackageMetaData metadata) {
+        public static SimulatedModInfo buildFromPackage(PackageMetadata metadata) {
             var built = new SimulatedModInfo();
             built.modId = metadata.id();
             built.version = metadata.version();

@@ -3,7 +3,7 @@ package zank.mods.kube_packages.bridge.kubejs;
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.mojang.serialization.JsonOps;
-import zank.mods.kube_packages.api.meta.PackageMetaData;
+import zank.mods.kube_packages.api.meta.PackageMetadata;
 import zank.mods.kube_packages.utils.JavaOps;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import java.util.function.Supplier;
  */
 public class MetadataToModsToml {
 
-    public static Config convert(PackageMetaData metaData, Consumer<SimulatedModsToml> modifier) {
+    public static Config convert(PackageMetadata metaData, Consumer<SimulatedModsToml> modifier) {
         var built = SimulatedModsToml.buildFromPackage(metaData);
         if (modifier != null) {
             modifier.accept(built);

@@ -4,9 +4,8 @@ import com.google.common.collect.Maps;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.KubePackage;
-import zank.mods.kube_packages.api.meta.PackageMetaData;
+import zank.mods.kube_packages.api.meta.PackageMetadata;
 import zank.mods.kube_packages.api.meta.dependency.DependencyBuilder;
-import zank.mods.kube_packages.api.meta.MetaDataBuilder;
 import zank.mods.kube_packages.api.meta.dependency.PackageDependency;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.typings.Info;
@@ -36,8 +35,8 @@ public class KubePackagesBinding {
         return new MetadataBuilderJS();
     }
 
-    public PackageMetaData metaDataMinimal(String id, ArtifactVersion version) {
-        return PackageMetaData.minimal(id, version);
+    public PackageMetadata metaDataMinimal(String id, ArtifactVersion version) {
+        return PackageMetadata.minimal(id, version);
     }
 
     public DependencyBuilder dependencyBuilder() {
@@ -56,15 +55,15 @@ public class KubePackagesBinding {
 
     @Info("""
         @return The metadata from KubePackage with provided `id`, or `null` if there's no such KubePackage""")
-    public PackageMetaData getMetadata(String id) {
+    public PackageMetadata getMetadata(String id) {
         var pkg = KubePackages.getPackages().get(id);
-        return pkg == null ? null : pkg.metaData();
+        return pkg == null ? null : pkg.metadata();
     }
 
     @Info("""
         KubePackage id -> KubePackage metadata""")
-    public Map<String, PackageMetaData> viewAllMetadata() {
-        return Maps.transformValues(KubePackages.getPackages(), KubePackage::metaData);
+    public Map<String, PackageMetadata> viewAllMetadata() {
+        return Maps.transformValues(KubePackages.getPackages(), KubePackage::metadata);
     }
 
     @Info("""

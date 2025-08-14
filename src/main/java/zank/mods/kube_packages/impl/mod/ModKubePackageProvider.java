@@ -7,7 +7,7 @@ import zank.mods.kube_packages.api.KubePackage;
 import zank.mods.kube_packages.api.KubePackageProvider;
 import zank.mods.kube_packages.api.KubePackageUtils;
 import org.jetbrains.annotations.NotNull;
-import zank.mods.kube_packages.api.meta.PackageMetaData;
+import zank.mods.kube_packages.api.meta.PackageMetadata;
 import zank.mods.kube_packages.utils.GameUtil;
 
 import java.io.IOException;
@@ -37,13 +37,13 @@ public class ModKubePackageProvider implements KubePackageProvider {
         return cached;
     }
 
-    private static PackageMetaData findMetadata(IModFileInfo modFile) {
+    private static PackageMetadata findMetadata(IModFileInfo modFile) {
         var path = modFile.getFile().findResource(KubePackages.META_DATA_FILE_NAME);
         if (!Files.exists(path)) {
             return null;
         }
         try (var reader = Files.newBufferedReader(path)) {
-            return KubePackageUtils.readMetaData(reader)
+            return KubePackageUtils.readMetadata(reader)
                 .resultOrPartial(error -> KubePackages.LOGGER.error(
                     "Error when parsing package metadata in mod '{}': {}",
                     GameUtil.extractModIds(modFile),

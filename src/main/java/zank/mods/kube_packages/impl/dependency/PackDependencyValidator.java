@@ -39,7 +39,7 @@ public class PackDependencyValidator {
             return;
         }
         for (var pack : packs) {
-            for (var dependency : pack.metaData().dependencies()) {
+            for (var dependency : pack.metadata().dependencies()) {
                 validateSingleDependency(pack, dependency, report);
             }
         }
@@ -53,7 +53,7 @@ public class PackDependencyValidator {
                 var target = this.indexed.get(dependency.id());
                 targetPresent = target != null;
                 targetVersion = targetPresent
-                    ? target.metaData().version()
+                    ? target.metadata().version()
                     : null;
             }
             case MOD -> {
@@ -127,8 +127,8 @@ public class PackDependencyValidator {
             }
             case PREFER_FIRST -> report.addWarning(error.append(", keeping the package found earlier"));
             case PREFER_NEWER -> {
-                var version = pack.metaData().version();
-                var existedVersion = existed.metaData().version();
+                var version = pack.metadata().version();
+                var existedVersion = existed.metadata().version();
                 var existedComparedToFound = existedVersion.compareTo(version);
                 if (existedComparedToFound == 0) {
                     report.addError(error);

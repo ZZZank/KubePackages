@@ -6,12 +6,12 @@ import com.google.common.base.Suppliers;
 import com.mojang.serialization.JsonOps;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import zank.mods.kube_packages.KubePackages;
-import zank.mods.kube_packages.api.meta.PackageMetaData;
+import zank.mods.kube_packages.api.meta.PackageMetadata;
 import zank.mods.kube_packages.api.meta.dependency.DependencySource;
 import zank.mods.kube_packages.api.meta.dependency.DependencyType;
 import zank.mods.kube_packages.bridge.kubejs.MetadataToModsToml;
 import zank.mods.kube_packages.impl.dependency.ImmutableDependency;
-import zank.mods.kube_packages.impl.dependency.ImmutableMetaData;
+import zank.mods.kube_packages.impl.dependency.ImmutableMetadata;
 import zank.mods.kube_packages.utils.GameUtil;
 
 import java.nio.file.Files;
@@ -25,8 +25,8 @@ import java.util.function.Supplier;
  */
 public class DataExportTest {
 
-    private static final Supplier<PackageMetaData> META_DATA = Suppliers.memoize(
-        () -> new ImmutableMetaData(
+    private static final Supplier<PackageMetadata> META_DATA = Suppliers.memoize(
+        () -> new ImmutableMetadata(
             "examplemod",
             Optional.of("Exampl"),
             Optional.of("""
@@ -60,7 +60,7 @@ public class DataExportTest {
     public void metadata() {
         var path = Path.of("run", KubePackages.META_DATA_FILE_NAME);
         try (var writer = Files.newBufferedWriter(path)) {
-            var json = PackageMetaData.CODEC
+            var json = PackageMetadata.CODEC
                 .encodeStart(JsonOps.INSTANCE, META_DATA.get())
                 .result()
                 .orElseThrow();

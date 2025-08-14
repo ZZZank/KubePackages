@@ -48,7 +48,7 @@ public class ZipKubePackageProvider implements KubePackageProvider {
                     KubePackages.META_DATA_FILE_NAME
                 ));
             }
-            var metadata = KubePackageUtils.readMetaDataOrThrow(zipFile.getInputStream(entry));
+            var metadata = KubePackageUtils.readMetadataOrThrow(zipFile.getInputStream(entry));
             return new ZipKubePackage(file.toPath(), metadata);
         } catch (Exception e) {
             KubePackages.LOGGER.error("Error when scanning zip file: {}", file.getName(), e);
