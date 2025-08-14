@@ -32,8 +32,8 @@ public class KubePackagesBinding {
         this.type = type;
     }
 
-    public MetaDataBuilder metaDataBuilder() {
-        return PackageMetaData.builder();
+    public MetadataBuilderJS metaDataBuilder() {
+        return new MetadataBuilderJS();
     }
 
     public PackageMetaData metaDataMinimal(String id, ArtifactVersion version) {
