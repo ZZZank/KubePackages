@@ -32,7 +32,7 @@ public class KubePackages {
     }
 
     private static final List<KubePackageProvider> PROVIDERS = new ArrayList<>();
-    private static volatile List<KubePackage> cachedPackages = null;
+    private static volatile Map<String, KubePackage> cachedPackages = null;
 
     public static void registerProvider(KubePackageProvider provider) {
         PROVIDERS.add(Objects.requireNonNull(provider));
@@ -42,7 +42,7 @@ public class KubePackages {
         return Collections.unmodifiableList(PROVIDERS);
     }
 
-    public static List<KubePackage> getPackages(BiConsumer<Level, Component> perReportConsumer) {
+    public static Map<String, KubePackage> getPackages(BiConsumer<Level, Component> perReportConsumer) {
         Objects.requireNonNull(perReportConsumer);
         return getPackages(reports -> {
             for (var entry : reports.viewAllReports().entrySet()) {
@@ -54,7 +54,7 @@ public class KubePackages {
         });
     }
 
-    public static synchronized List<KubePackage> getPackages(Consumer<DependencyReport> reportsConsumer) {
+    public static synchronized Map<String, KubePackage> getPackages(Consumer<DependencyReport> reportsConsumer) {
         if (cachedPackages == null) {
             var provided = PROVIDERS.stream()
                 .map(KubePackageProvider::provide)
@@ -66,20 +66,20 @@ public class KubePackages {
             var report = validator.report();
             reportsConsumer.accept(report);
 
-            cachedPackages = List.copyOf(validator.indexed().values());
+            cachedPackages = Collections.unmodifiableMap(validator.indexed());
             LOGGER.info(
                 "Collected {} packages with {} errors, {} warnings and {} infos: {}",
                 cachedPackages.size(),
                 report.getReportsAt(Level.ERROR).size(),
                 report.getReportsAt(Level.WARN).size(),
                 report.getReportsAt(Level.INFO).size(),
-                cachedPackages
+                cachedPackages.values()
             );
         }
         return cachedPackages;
     }
 
-    public static List<KubePackage> getPackages() {
+    public static Map<String, KubePackage> getPackages() {
         return getPackages((level, text) -> KubePackages.LOGGER.atLevel(level).log(text.getString()));
     }
 

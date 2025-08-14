@@ -14,6 +14,6 @@ public class ForgeModEventHandlers {
     @SubscribeEvent
     public static void addPackRepo(AddPackFindersEvent event) {
         var type = event.getPackType();
-        event.addRepositorySource(loader -> KubePackages.getPackages().forEach(p -> p.getResource(type, loader)));
+        event.addRepositorySource(loader -> KubePackages.getPackages().forEach((id, p) -> p.getResource(type, loader)));
     }
 }

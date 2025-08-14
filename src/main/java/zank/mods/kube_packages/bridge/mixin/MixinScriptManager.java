@@ -52,7 +52,7 @@ public abstract class MixinScriptManager implements SortablePackageHolder, Scrip
 
         var sortablePacks = new HashMap<String, SortableKubePackage>();
 
-        for (var pkg : packages) {
+        for (var pkg : packages.values()) {
             var scriptPack = pkg.getScript(context);
             var namespace = pkg.id();
 

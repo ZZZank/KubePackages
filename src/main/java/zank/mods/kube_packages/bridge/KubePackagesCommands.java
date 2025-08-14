@@ -83,7 +83,7 @@ public class KubePackagesCommands {
     private static int listPackages(CommandContext<CommandSourceStack> cx) throws CommandSyntaxException {
         var reporter = extractReporter(cx);
 
-        var packages = KubePackages.getPackages();
+        var packages = KubePackages.getPackages().values();
         reporter.accept(Component.translatable("Found %s packages:", packages.size()));
         for (var pkg : packages) {
             var metaData = pkg.metaData();
@@ -108,16 +108,16 @@ public class KubePackagesCommands {
 
         var targetId = cx.getArgument("id", String.class);
 
-        var text = KubePackages.getPackages()
-            .stream()
-            .filter(p -> p.id().equals(targetId))
-            .findFirst()
-            .map(pkg -> Component.literal("Found ")
-                .append(pkg.toString())
+        var found = KubePackages.getPackages().get(targetId);
+        if (found == null) {
+            reporter.accept(Component.literal("Cannot find package with id: ").append(Component.literal(targetId).kjs$green()));
+        } else {
+            var text = Component.literal("Found ")
+                .append(found.toString())
                 .append(": ")
-                .append(prettyPrintMetadata(pkg.getMetaData())))
-            .orElse(Component.literal("Cannot find package with id: ").append(targetId));
-        reporter.accept(text);
+                .append(prettyPrintMetadata(found.metaData()));
+            reporter.accept(text);
+        }
 
         return Command.SINGLE_SUCCESS;
     }
