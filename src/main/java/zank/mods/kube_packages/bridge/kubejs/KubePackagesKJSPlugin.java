@@ -10,7 +10,6 @@ import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.apache.maven.artifact.versioning.VersionRange;
 import zank.mods.kube_packages.KubePackages;
-import zank.mods.kube_packages.api.inject.SortablePackageHolder;
 import zank.mods.kube_packages.api.meta.PackageMetaData;
 import zank.mods.kube_packages.bridge.KubePackagePaths;
 import zank.mods.kube_packages.impl.dummy.DummyKubePackage;
@@ -45,13 +44,7 @@ public class KubePackagesKJSPlugin extends KubeJSPlugin {
 
     @Override
     public void registerBindings(BindingsEvent event) {
-        event.add(
-            "KubePackages",
-            new KubePackagesBinding(
-                event.getType(),
-                (SortablePackageHolder) event.manager
-            )
-        );
+        event.add("KubePackages", new KubePackagesBinding(event.getType()));
     }
 
     @Override

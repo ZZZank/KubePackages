@@ -2,13 +2,12 @@ package zank.mods.kube_packages.bridge.kubejs;
 
 import com.google.common.collect.Maps;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
+import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.KubePackage;
-import zank.mods.kube_packages.api.inject.SortablePackageHolder;
 import zank.mods.kube_packages.api.meta.PackageMetaData;
 import zank.mods.kube_packages.api.meta.dependency.DependencyBuilder;
 import zank.mods.kube_packages.api.meta.MetaDataBuilder;
 import zank.mods.kube_packages.api.meta.dependency.PackageDependency;
-import zank.mods.kube_packages.impl.dependency.SortableKubePackage;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.typings.Info;
 
@@ -28,13 +27,9 @@ public class KubePackagesBinding {
     }
 
     private final ScriptType type;
-    private final SortablePackageHolder pkgHolder;
 
-    public KubePackagesBinding(ScriptType type, SortablePackageHolder pkgHolder) {
+    public KubePackagesBinding(ScriptType type) {
         this.type = type;
-        // "why not get packsHolder.kpkg$sortablePacks() in advance", you might ask
-        // Well, at this stage, packs map in script manager is not initialized yet, so we defer accessing
-        this.pkgHolder = pkgHolder;
     }
 
     public MetaDataBuilder metaDataBuilder() {
@@ -56,26 +51,20 @@ public class KubePackagesBinding {
     @Info("""
         @return `true` if a KubePackage with provided `id` is present, `false` otherwise""")
     public boolean isLoaded(String id) {
-        return pkgHolder.kpkg$sortablePacks().containsKey(id);
+        return KubePackages.getPackages().containsKey(id);
     }
 
     @Info("""
         @return The metadata from KubePackage with provided `id`, or `null` if there's no such KubePackage""")
     public PackageMetaData getMetadata(String id) {
-        var sortableContentPack = pkgHolder.kpkg$sortablePacks().get(id);
-        return Optional.ofNullable(sortableContentPack)
-            .map(SortableKubePackage::pack)
-            .map(KubePackage::metaData)
-            .orElse(null);
+        var pkg = KubePackages.getPackages().get(id);
+        return pkg == null ? null : pkg.metaData();
     }
 
     @Info("""
         KubePackage id -> KubePackage metadata""")
     public Map<String, PackageMetaData> viewAllMetadata() {
-        return Collections.unmodifiableMap(Maps.transformValues(
-            pkgHolder.kpkg$sortablePacks(),
-            s -> s.pack().metaData()
-        ));
+        return Maps.transformValues(KubePackages.getPackages(), KubePackage::metaData);
     }
 
     @Info("""

@@ -3,7 +3,6 @@ package zank.mods.kube_packages.bridge.mixin;
 import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.ScriptLoadContext;
 import zank.mods.kube_packages.api.inject.ScriptPackLoadHelper;
-import zank.mods.kube_packages.api.inject.SortablePackageHolder;
 import zank.mods.kube_packages.impl.dependency.PackDependencyBuilder;
 import zank.mods.kube_packages.impl.dependency.SortableKubePackage;
 import zank.mods.kube_packages.utils.topo.TopoNotSolved;
@@ -20,13 +19,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 
 @Mixin(value = ScriptManager.class, remap = false)
-public abstract class MixinScriptManager implements SortablePackageHolder, ScriptPackLoadHelper {
+public abstract class MixinScriptManager implements ScriptPackLoadHelper {
 
     @Shadow
     protected abstract void loadFile(ScriptPack pack, ScriptFileInfo fileInfo, ScriptSource source);
 
-    @Unique
-    private Map<String, SortableKubePackage> kpkg$sortables;
+    @Shadow
+    @Final
+    public ScriptType scriptType;
 
     @Redirect(method = "load", at = @At(value = "INVOKE", target = "Ljava/util/Map;values()Ljava/util/Collection;"))
     private Collection<ScriptPack> injectPacks(Map<String, ScriptPack> original) {
@@ -68,8 +68,6 @@ public abstract class MixinScriptManager implements SortablePackageHolder, Scrip
             sortablePacks.put(namespace, new SortableKubePackage(namespace, pkg, scriptPacks));
         }
 
-        kpkg$sortables = Map.copyOf(sortablePacks);
-
         var dependencyBuilder = new PackDependencyBuilder();
         dependencyBuilder.build(sortablePacks.values());
 
@@ -83,11 +81,6 @@ public abstract class MixinScriptManager implements SortablePackageHolder, Scrip
             console.error("Unable to sort loaded packages, ignoring all installed packages", e);
             return original.values();
         }
-    }
-
-    @Override
-    public Map<String, SortableKubePackage> kpkg$sortablePacks() {
-        return kpkg$sortables;
     }
 
     @Override
