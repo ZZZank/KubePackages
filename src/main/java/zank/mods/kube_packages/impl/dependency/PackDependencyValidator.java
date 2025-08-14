@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.slf4j.event.Level;
 import zank.mods.kube_packages.api.KubePackage;
-import zank.mods.kube_packages.api.meta.dependency.DependencyType;
 import zank.mods.kube_packages.api.meta.dependency.PackageDependency;
 import dev.architectury.platform.Platform;
 import net.minecraft.network.chat.Component;
@@ -12,7 +11,6 @@ import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 
 import java.util.*;
-import java.util.function.Consumer;
 
 /**
  * @author ZZZank
@@ -71,23 +69,13 @@ public class PackDependencyValidator {
         var type = dependency.type();
         switch (type) {
             case REQUIRED, OPTIONAL, RECOMMENDED -> {
-                Consumer<Component> reporter = switch (type) {
-                    case REQUIRED -> report::addError;
-                    case OPTIONAL -> report::addWarning;
-                    case RECOMMENDED -> report::addInfo;
-                    default -> throw new IllegalStateException();
-                };
                 if (!targetPresent) {
                     // required but not found
-                    reporter.accept(dependency.toReport(pack).append(", but ContentPack with such id is not present"));
+                    report.addReport(type.logLevel, dependency.toReport(pack).append(", but ContentPack with such id is not present"));
                 } else if (dependency.versionRange().isPresent()) {
-                    if (targetVersion == null) {
-                        // specific version but no version
-                        reporter.accept(dependency.toReport(pack)
-                            .append(", but ContentPack with such id did not provide a version info"));
-                    } else if (!dependency.versionRange().get().containsVersion(targetVersion)) {
+                    if (!dependency.versionRange().get().containsVersion(targetVersion)) {
                         // specific version but not matched
-                        reporter.accept(dependency.toReport(pack)
+                        report.addReport(type.logLevel, dependency.toReport(pack)
                             .append(", but ContentPack with such id is at version '%s'".formatted(targetVersion)));
                     }
                 }
@@ -96,20 +84,13 @@ public class PackDependencyValidator {
                 if (!targetPresent) {
                     return;
                 }
-                Consumer<Component> reporter = type == DependencyType.INCOMPATIBLE
-                    ? report::addError
-                    : report::addWarning;
                 if (dependency.versionRange().isEmpty()) {
                     // any version not allowed
-                    reporter.accept(dependency.toReport(pack)
+                    report.addReport(type.logLevel, dependency.toReport(pack)
                         .append(", but a package with such id exists"));
-                } else if (targetVersion == null) {
-                    // specific version, but got none
-                    reporter.accept(dependency.toReport(pack)
-                        .append(", but a package with such id did not provide version information"));
                 } else if (dependency.versionRange().get().containsVersion(targetVersion)) {
                     // excluded version
-                    reporter.accept(dependency.toReport(pack)
+                    report.addReport(type.logLevel, dependency.toReport(pack)
                         .append(", but a package with such id is at version '%s'".formatted(targetVersion)));
                 }
             }

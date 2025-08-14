@@ -65,12 +65,7 @@ public abstract class MixinScriptManager implements SortablePackageHolder, Scrip
                 scriptPacks = List.of();
             }
 
-            var sortable = new SortableKubePackage(
-                namespace,
-                pkg,
-                scriptPacks
-            );
-            sortablePacks.put(namespace, sortable);
+            sortablePacks.put(namespace, new SortableKubePackage(namespace, pkg, scriptPacks));
         }
 
         kpkg$sortables = Map.copyOf(sortablePacks);
@@ -85,7 +80,7 @@ public abstract class MixinScriptManager implements SortablePackageHolder, Scrip
                 .flatMap(Collection::stream)
                 .toList();
         } catch (TopoNotSolved | TopoPreconditionFailed e) {
-            console.error("Unable to sort packages, ignoring all installed packages", e);
+            console.error("Unable to sort loaded packages, ignoring all installed packages", e);
             return original.values();
         }
     }

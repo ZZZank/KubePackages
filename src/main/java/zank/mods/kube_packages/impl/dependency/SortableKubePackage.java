@@ -23,10 +23,6 @@ public class SortableKubePackage implements TopoSortable<SortableKubePackage> {
         this.scriptPacks = List.copyOf(scriptPacks);
     }
 
-    public SortableKubePackage(String id, KubePackage pack, ScriptPack scriptPack) {
-        this(id, pack, List.of(scriptPack));
-    }
-
     @Override
     public Collection<SortableKubePackage> getTopoDependencies() {
         return dependencies;
