@@ -1,11 +1,13 @@
 package zank.mods.kube_packages.utils;
 
 import dev.latvian.mods.kubejs.script.ScriptType;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.forgespi.language.IModFileInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.VersionRange;
 
+import java.nio.file.Path;
 import java.util.stream.Collectors;
 
 /**
@@ -30,5 +32,20 @@ public class GameUtil {
         } catch (InvalidVersionSpecificationException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static Path resolveSafe(String path) {
+        return ensureInGameFolder(FMLPaths.GAMEDIR.get().resolve(path));
+    }
+
+    public static Path ensureInGameFolder(Path path) {
+        if (!isInGameFolder(path)) {
+            throw new IllegalArgumentException("path not in game folder");
+        }
+        return path;
+    }
+
+    public static boolean isInGameFolder(Path path) {
+        return path.toAbsolutePath().startsWith(FMLPaths.GAMEDIR.get());
     }
 }
