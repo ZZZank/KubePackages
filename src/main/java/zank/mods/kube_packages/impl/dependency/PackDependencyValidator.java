@@ -1,5 +1,6 @@
 package zank.mods.kube_packages.impl.dependency;
 
+import org.slf4j.event.Level;
 import zank.mods.kube_packages.api.KubePackage;
 import zank.mods.kube_packages.api.meta.dependency.DependencyType;
 import zank.mods.kube_packages.api.meta.dependency.PackageDependency;
@@ -15,17 +16,17 @@ import java.util.function.Consumer;
  * @author ZZZank
  */
 public class PackDependencyValidator {
-    private final DupeHandling duplicationHandling;
+    private final DupeHandling dupeHandling;
     private Map<String, KubePackage> named;
 
-    public PackDependencyValidator(DupeHandling duplicationHandling) {
-        this.duplicationHandling = Objects.requireNonNull(duplicationHandling);
+    public PackDependencyValidator(DupeHandling dupeHandling) {
+        this.dupeHandling = Objects.requireNonNull(dupeHandling);
     }
 
     public DependencyReport validate(Collection<KubePackage> packs) {
         var report = new DependencyReport();
         this.named = indexAndValidateId(packs, report);
-        if (!report.errors().isEmpty() && duplicationHandling == DupeHandling.ERROR) {
+        if (!report.getReportsAt(Level.ERROR).isEmpty() && dupeHandling == DupeHandling.ERROR) {
             return report;
         }
         for (var pack : packs) {
@@ -138,7 +139,7 @@ public class PackDependencyValidator {
             pack,
             id
         );
-        switch (this.duplicationHandling) {
+        switch (this.dupeHandling) {
             case ERROR -> report.addError(error);
             case PREFER_LAST -> {
                 named.put(id, pack);

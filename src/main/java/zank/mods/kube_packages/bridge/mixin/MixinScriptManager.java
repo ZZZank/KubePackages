@@ -1,6 +1,7 @@
 package zank.mods.kube_packages.bridge.mixin;
 
 import net.minecraft.network.chat.Component;
+import org.slf4j.event.Level;
 import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.KubePackagesConfig;
 import zank.mods.kube_packages.api.ScriptLoadContext;
@@ -37,10 +38,10 @@ public abstract class MixinScriptManager implements SortablePackageHolder, Scrip
 
         var report = new PackDependencyValidator(KubePackagesConfig.DUPE_HANDLING.get())
             .validate(packages);
-        report.infos().stream().map(Component::getString).forEach(context.console()::info);
-        report.warnings().stream().map(Component::getString).forEach(context.console()::warn);
-        report.errors().stream().map(Component::getString).forEach(context.console()::error);
-        if (!report.errors().isEmpty()) {
+        report.getReportsAt(Level.INFO).stream().map(Component::getString).forEach(context.console()::info);
+        report.getReportsAt(Level.WARN).stream().map(Component::getString).forEach(context.console()::warn);
+        report.getReportsAt(Level.ERROR).stream().map(Component::getString).forEach(context.console()::error);
+        if (!report.getReportsAt(Level.ERROR).isEmpty()) {
             return original.values();
         }
 
