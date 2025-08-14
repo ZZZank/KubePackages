@@ -1,7 +1,9 @@
 package zank.mods.kube_packages;
 
 import com.google.gson.Gson;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zank.mods.kube_packages.api.KubePackage;
@@ -19,6 +21,10 @@ public class KubePackages {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static final String META_DATA_FILE_NAME = "kube_package.json";
     public static final Gson GSON = new Gson();
+
+    public KubePackages() {
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, KubePackagesConfig.INSTANCE);
+    }
 
     private static final List<KubePackageProvider> PROVIDERS = new ArrayList<>();
     private static volatile List<KubePackage> cachedPackages = null;

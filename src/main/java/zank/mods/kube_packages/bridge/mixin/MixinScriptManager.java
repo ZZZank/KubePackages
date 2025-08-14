@@ -2,6 +2,7 @@ package zank.mods.kube_packages.bridge.mixin;
 
 import net.minecraft.network.chat.Component;
 import zank.mods.kube_packages.KubePackages;
+import zank.mods.kube_packages.KubePackagesConfig;
 import zank.mods.kube_packages.api.ScriptLoadContext;
 import zank.mods.kube_packages.api.inject.ScriptPackLoadHelper;
 import zank.mods.kube_packages.api.inject.SortablePackageHolder;
@@ -34,7 +35,7 @@ public abstract class MixinScriptManager implements SortablePackageHolder, Scrip
         var context = new ScriptLoadContext((ScriptManager) (Object) this);
         var packages = KubePackages.getPackages();
 
-        var report = new PackDependencyValidator(PackDependencyValidator.DupeHandling.ERROR)
+        var report = new PackDependencyValidator(KubePackagesConfig.DUPE_HANDLING.get())
             .validate(packages);
         report.infos().stream().map(Component::getString).forEach(context.console()::info);
         report.warnings().stream().map(Component::getString).forEach(context.console()::warn);
@@ -46,13 +47,13 @@ public abstract class MixinScriptManager implements SortablePackageHolder, Scrip
         var sortablePacks = new HashMap<String, SortableKubePackage>();
 
         for (var pkg : packages) {
-            zank.mods.kube_packages.KubePackages.LOGGER.debug("Found package: {}", pkg);
+            KubePackages.LOGGER.debug("Found package: {}", pkg);
             var scriptPack = pkg.getScript(context);
             var namespace = pkg.id();
 
             List<ScriptPack> scriptPacks;
             if (KubeJS.MOD_ID.equals(namespace)) {
-                scriptPacks = new ArrayList<>(original.values());
+                scriptPacks = List.copyOf(original.values());
             } else if (scriptPack != null) {
                 scriptPacks = List.of(pkg.postProcess(context, scriptPack));
             } else {
