@@ -12,7 +12,9 @@ import lombok.experimental.Accessors;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.PackType;
-import org.apache.commons.io.file.PathUtils;
+import org.apache.commons.io.file.*;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.io.filefilter.IOFileFilter;
 import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.meta.PackageMetadata;
 import zank.mods.kube_packages.utils.CodecUtil;
@@ -25,10 +27,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -51,6 +52,11 @@ public class PackageExporter {
     private PackageMetadata metadata;
     private Consumer<SimulatedModsToml> modInfoModifier;
     private boolean debugMode;
+
+    @Getter(AccessLevel.NONE)
+    private final Map<Enum<?>, PathFilter> fileFilters = new HashMap<>();
+    @Getter(AccessLevel.NONE)
+    private final Map<Enum<?>, PathFilter> dirFilters = new HashMap<>();
 
     public PackageExporter(Consumer<Component> reporter) {
         this.reporter = reporter;
@@ -111,8 +117,12 @@ public class PackageExporter {
     }
 
     private void debug(String message) {
+        debug(Component.literal(message));
+    }
+
+    private void debug(Component message) {
         if (this.debugMode) {
-            report(Component.literal(message));
+            report(message);
         }
     }
 
@@ -123,24 +133,64 @@ public class PackageExporter {
         return path;
     }
 
+    public void setScriptFileFilter(ScriptType type, Function<PathFilterHelper, IOFileFilter> toFilter) {
+        this.fileFilters.put(type, toFilter.apply(PathFilterHelper.INSTANCE));
+    }
+
+    public void setScriptDirFilter(ScriptType type, Function<PathFilterHelper, IOFileFilter> toFilter) {
+        this.dirFilters.put(type, toFilter.apply(PathFilterHelper.INSTANCE));
+    }
+
+    public void setAssetFileFilter(PackType type, Function<PathFilterHelper, IOFileFilter> toFilter) {
+        this.fileFilters.put(type, toFilter.apply(PathFilterHelper.INSTANCE));
+    }
+
+    public void setAssetDirFilter(PackType type, Function<PathFilterHelper, IOFileFilter> toFilter) {
+        this.dirFilters.put(type, toFilter.apply(PathFilterHelper.INSTANCE));
+    }
+
     private void copyScriptAndAsset(Path root) throws IOException {
         for (var scriptType : scriptTypes) {
-            var directory = GameUtil.toFolderName(scriptType);
-            PathUtils.copyDirectory(
-                KubeJSPaths.DIRECTORY.resolve(directory),
-                ensureDir(root.resolve(directory))
-            );
+            var directoryName = GameUtil.toFolderName(scriptType);
+            var source = KubeJSPaths.DIRECTORY.resolve(directoryName).toAbsolutePath();
+            var target = ensureDir(root.resolve(directoryName));
+
+            var counters = PathUtils.visitFileTree(
+                new CopyDirectoryVisitor(
+                    Counters.longPathCounters(),
+                    getFilter(false, scriptType),
+                    getFilter(true, scriptType),
+                    source,
+                    target
+                ),
+                source
+            ).getPathCounters();
+            debug(Component.translatable("Copied %s files for %s", counters.getFileCounter().get(), scriptType));
         }
-        debug("Scripts copied");
 
         for (var resourceType : resourceTypes) {
             var directory = resourceType.getDirectory();
-            PathUtils.copyDirectory(
-                KubeJSPaths.DIRECTORY.resolve(directory),
-                ensureDir(root.resolve(directory))
-            );
+            var source = KubeJSPaths.DIRECTORY.resolve(directory).toAbsolutePath();
+            var target = ensureDir(root.resolve(directory));
+
+            var counters = PathUtils.visitFileTree(
+                new CopyDirectoryVisitor(
+                    Counters.longPathCounters(),
+                    getFilter(false, resourceType),
+                    getFilter(true, resourceType),
+                    source,
+                    target
+                ),
+                source
+            ).getPathCounters();
+            debug(Component.translatable("Copied %s files for %s", counters.getFileCounter().get(), resourceType));
         }
-        debug("Assets copied");
+    }
+
+    private PathFilter getFilter(boolean isDir, Enum<?> key) {
+        var map = isDir ? dirFilters : fileFilters;
+        var got = map.get(key);
+        return got == null ? FileFilterUtils.trueFileFilter() : got;
     }
 
     private void writeMetadata(Path root) throws IOException {
