@@ -35,8 +35,6 @@ import java.util.function.Predicate;
 @Mod.EventBusSubscriber
 public class KubePackagesCommands {
 
-    private static final Component LINE_BREAK = Component.literal("\n");
-
     @SubscribeEvent
     public static void registerCommands(RegisterCommandsEvent event) {
         var spOrOp =
@@ -64,12 +62,12 @@ public class KubePackagesCommands {
                     .then(Commands.literal("cacheMetadata")
                         .then(Commands.argument("id", StringArgumentType.string())
                             .suggests((cx, builder) -> SharedSuggestionProvider.suggest(
-                                MetadataBuilderJS.BUILT_TEMP.keySet(),
+                                MetadataBuilderJS.COMMAND_CACHE.keySet(),
                                 builder
                             ))
                             .executes(cx -> {
                                 var id = cx.getArgument("id", String.class);
-                                return exportPackage(cx, MetadataBuilderJS.BUILT_TEMP.get(id));
+                                return exportPackage(cx, MetadataBuilderJS.COMMAND_CACHE.get(id));
                             })))
                     .then(Commands.literal("minimalMetadata")
                         .then(Commands.argument("id", StringArgumentType.string())
@@ -85,7 +83,7 @@ public class KubePackagesCommands {
             .then(Commands.literal("package")
                 .then(Commands.literal("list")
                     .executes(KubePackagesCommands::listPackages))
-                .then(Commands.literal("findInstalled")
+                .then(Commands.literal("show")
                     .then(Commands.argument("id", StringArgumentType.string())
                         .executes(KubePackagesCommands::showPackage))));
         dispatcher.register(command);
@@ -118,15 +116,19 @@ public class KubePackagesCommands {
         var reporter = extractReporter(cx);
 
         var packages = KubePackages.getPackages().values();
-        reporter.accept(Component.translatable("Found %s packages:", packages.size()));
+        reporter.accept(Component.translatable("Found %s packages: ", packages.size()));
         for (var pkg : packages) {
             var metaData = pkg.metadata();
             reporter.accept(Component.empty()
                 .append(Component.literal("- ").kjs$darkGray())
                 .append(Component.translatable("%s(%s): %s", metaData.displayName(), metaData.id(), metaData.version())
                     .kjs$green())
-                .kjs$clickSuggestCommand("/kpkg package findInstalled " + metaData.id())
-                .kjs$hover(Component.literal("Click for detailed info")));
+                .kjs$clickSuggestCommand("/kpkg package show " + metaData.id())
+                .kjs$hover(Component.empty()
+                    .append(Component.literal(pkg.toString()).kjs$aqua())
+                    .append("\n")
+                    .append("Click for detailed info"))
+            );
         }
         return Command.SINGLE_SUCCESS;
     }

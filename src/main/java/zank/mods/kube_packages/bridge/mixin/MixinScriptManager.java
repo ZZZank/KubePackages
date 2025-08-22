@@ -24,10 +24,6 @@ public abstract class MixinScriptManager implements ScriptPackLoadHelper {
     @Shadow
     protected abstract void loadFile(ScriptPack pack, ScriptFileInfo fileInfo, ScriptSource source);
 
-    @Shadow
-    @Final
-    public ScriptType scriptType;
-
     @Redirect(method = "load", at = @At(value = "INVOKE", target = "Ljava/util/Map;values()Ljava/util/Collection;"))
     private Collection<ScriptPack> injectPacks(Map<String, ScriptPack> original) {
         var context = new ScriptLoadContext((ScriptManager) (Object) this);

@@ -11,8 +11,10 @@ import java.util.stream.Stream;
 /**
  * @author ZZZank
  */
-public enum JavaOps implements DynamicOps<Object> {
-    INSTANCE;
+public class JavaOps implements DynamicOps<Object> {
+    public static final JavaOps INSTANCE = new JavaOps();
+
+    protected JavaOps() {}
 
     public static final Object EMPTY = new Object();
 

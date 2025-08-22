@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class MetadataBuilderJS extends MetadataBuilder {
 
-    public static final Map<String, PackageMetadata> BUILT_TEMP = new ConcurrentHashMap<>();
+    public static final Map<String, PackageMetadata> COMMAND_CACHE = new ConcurrentHashMap<>();
 
     public void buildAndWriteTo(String path) throws IOException {
         try (var writer = Files.newBufferedWriter(GameUtil.resolveSafe(path))) {
@@ -33,6 +33,6 @@ public class MetadataBuilderJS extends MetadataBuilder {
 
     public void buildAndPushToCache() {
         var built = build();
-        BUILT_TEMP.put(built.id(), built);
+        COMMAND_CACHE.put(built.id(), built);
     }
 }
