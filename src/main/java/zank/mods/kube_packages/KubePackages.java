@@ -61,7 +61,7 @@ public class KubePackages {
                 .flatMap(Collection::stream)
                 .toList();
 
-            var validator = new PackDependencyValidator(KubePackagesConfig.DUPE_HANDLING.get());
+            var validator = new PackDependencyValidator(PackDependencyValidator.DupeHandling.ERROR);
             validator.validate(provided);
             var report = validator.report();
             reportsConsumer.accept(report);
