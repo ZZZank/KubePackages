@@ -1,6 +1,8 @@
 package zank.mods.kube_packages.utils;
 
 import dev.latvian.mods.kubejs.script.ScriptType;
+import net.minecraftforge.fml.ModContainer;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.forgespi.language.IModFileInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
@@ -8,6 +10,7 @@ import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException
 import org.apache.maven.artifact.versioning.VersionRange;
 
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -47,5 +50,15 @@ public class GameUtil {
 
     public static boolean isInGameFolder(Path path) {
         return path.toAbsolutePath().startsWith(FMLPaths.GAMEDIR.get());
+    }
+
+    public static Optional<IModInfo> findModInfo(String modId) {
+        return ModList.get()
+            .getModContainerById(modId)
+            .map(ModContainer::getModInfo);
+    }
+
+    public static IModInfo findModInfoOrThrow(String modId) {
+        return findModInfo(modId).orElseThrow(() -> new IllegalArgumentException("Cannot find mod with id: " + modId));
     }
 }

@@ -19,6 +19,7 @@ import zank.mods.kube_packages.impl.mod.ModKubePackageProvider;
 import zank.mods.kube_packages.impl.path.DirKubePackageProvider;
 import zank.mods.kube_packages.impl.zip.ZipKubePackageProvider;
 import zank.mods.kube_packages.utils.CodecUtil;
+import zank.mods.kube_packages.utils.GameUtil;
 
 import java.util.List;
 
@@ -65,10 +66,7 @@ public class KubePackagesKJSPlugin extends KubeJSPlugin {
     }
 
     private static PackageMetadata createKubeJSMetadata() {
-        var info = ModList.get()
-            .getModContainerById(KubeJS.MOD_ID)
-            .orElseThrow()
-            .getModInfo();
+        var info = GameUtil.findModInfoOrThrow(KubeJS.MOD_ID);
         return PackageMetadata.builder()
             .id(KubeJS.MOD_ID)
             .name("KubeJS")

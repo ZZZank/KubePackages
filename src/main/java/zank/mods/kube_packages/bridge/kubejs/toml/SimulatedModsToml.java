@@ -8,6 +8,7 @@ import net.minecraftforge.jarjar.metadata.json.ArtifactVersionSerializer;
 import net.minecraftforge.jarjar.metadata.json.VersionRangeSerializer;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
 import org.apache.maven.artifact.versioning.VersionRange;
+import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.meta.PackageMetadata;
 import zank.mods.kube_packages.api.meta.dependency.DependencySource;
 import zank.mods.kube_packages.api.meta.dependency.DependencyType;
@@ -35,18 +36,14 @@ public class SimulatedModsToml {
         ))
         .create();
 
-    private static final PackageDependency FORGE_DEP = PackageDependency.builder()
+    private static final PackageDependency KPKG_DEP = PackageDependency.builder()
         .type(DependencyType.REQUIRED)
         .source(DependencySource.MOD)
-        .id("forge")
-        .versionRange(GameUtil.versionRangeFromSpecOrThrow("[47,)"))
-        .build();
-
-    private static final PackageDependency MINECRAFT_DEP = PackageDependency.builder()
-        .type(DependencyType.REQUIRED)
-        .source(DependencySource.MOD)
-        .id("minecraft")
-        .versionRange(GameUtil.versionRangeFromSpecOrThrow("[1.20.1,)"))
+        .id(KubePackages.MOD_ID)
+        .versionRange(GameUtil.versionRangeFromSpecOrThrow(String.format(
+            "[%s,)",
+            GameUtil.findModInfoOrThrow(KubePackages.MOD_ID).getVersion()
+        )))
         .build();
 
     public static SimulatedModsToml buildFromPackage(PackageMetadata metadata) {
@@ -55,7 +52,7 @@ public class SimulatedModsToml {
         built.mods = List.of(SimulatedModInfo.buildFromPackage(metadata));
         var packageDependencies = Stream.concat(
                 metadata.dependencies().stream(),
-                Stream.of(MINECRAFT_DEP, FORGE_DEP)
+                Stream.of(KPKG_DEP)
             )
             .collect(Collectors.toMap(
                 PackageDependency::id,
