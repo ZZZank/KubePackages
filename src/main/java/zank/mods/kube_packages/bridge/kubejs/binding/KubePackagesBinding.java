@@ -1,4 +1,4 @@
-package zank.mods.kube_packages.bridge.kubejs;
+package zank.mods.kube_packages.bridge.kubejs.binding;
 
 import com.google.common.collect.Maps;
 import org.apache.maven.artifact.versioning.ArtifactVersion;
@@ -9,6 +9,7 @@ import zank.mods.kube_packages.api.meta.dependency.DependencyBuilder;
 import zank.mods.kube_packages.api.meta.dependency.PackageDependency;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import dev.latvian.mods.kubejs.typings.Info;
+import zank.mods.kube_packages.bridge.kubejs.PackageExporter;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

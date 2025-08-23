@@ -19,7 +19,7 @@ import org.slf4j.event.Level;
 import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.KubePackageUtils;
 import zank.mods.kube_packages.api.meta.PackageMetadata;
-import zank.mods.kube_packages.bridge.kubejs.MetadataBuilderJS;
+import zank.mods.kube_packages.bridge.kubejs.binding.MetadataBuilderJS;
 import zank.mods.kube_packages.bridge.kubejs.PackageExporter;
 import zank.mods.kube_packages.bridge.kubejs.PackageExporter.ExportType;
 import zank.mods.kube_packages.impl.dependency.DependencyReport;

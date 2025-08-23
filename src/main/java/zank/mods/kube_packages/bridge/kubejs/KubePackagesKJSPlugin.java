@@ -12,6 +12,7 @@ import org.apache.maven.artifact.versioning.VersionRange;
 import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.meta.PackageMetadata;
 import zank.mods.kube_packages.bridge.KubePackagePaths;
+import zank.mods.kube_packages.bridge.kubejs.binding.KubePackagesBinding;
 import zank.mods.kube_packages.impl.dummy.DummyKubePackage;
 import zank.mods.kube_packages.impl.dummy.DummyKubePackageProvider;
 import zank.mods.kube_packages.impl.mod.ModKubePackageProvider;

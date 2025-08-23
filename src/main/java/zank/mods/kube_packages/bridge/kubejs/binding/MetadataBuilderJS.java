@@ -1,4 +1,4 @@
-package zank.mods.kube_packages.bridge.kubejs;
+package zank.mods.kube_packages.bridge.kubejs.binding;
 
 import com.mojang.serialization.JsonOps;
 import lombok.RequiredArgsConstructor;

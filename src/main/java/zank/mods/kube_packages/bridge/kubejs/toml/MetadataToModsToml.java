@@ -1,4 +1,4 @@
-package zank.mods.kube_packages.bridge.kubejs;
+package zank.mods.kube_packages.bridge.kubejs.toml;
 
 import com.electronwill.nightconfig.core.Config;
 import com.electronwill.nightconfig.toml.TomlFormat;

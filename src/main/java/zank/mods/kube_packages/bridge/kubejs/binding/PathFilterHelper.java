@@ -1,9 +1,10 @@
-package zank.mods.kube_packages.bridge.kubejs;
+package zank.mods.kube_packages.bridge.kubejs.binding;
 
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
+import org.apache.commons.io.filefilter.SymbolicLinkFileFilter;
 
 /**
  * @author ZZZank
@@ -35,6 +36,14 @@ public class PathFilterHelper {
         return new NameFileFilter(names, ioCase);
     }
 
+    public IOFileFilter fileNameNoneOf(String... names) {
+        return not(fileNameOneOf(names));
+    }
+
+    public IOFileFilter fileNameNoneOf(IOCase ioCase, String... names) {
+        return not(fileNameOneOf(ioCase, names));
+    }
+
     public IOFileFilter always() {
         return FileFilterUtils.trueFileFilter();
     }
@@ -57,5 +66,13 @@ public class PathFilterHelper {
 
     public IOFileFilter not(IOFileFilter filter) {
         return FileFilterUtils.notFileFilter(filter);
+    }
+
+    public IOFileFilter symbolLink() {
+        return SymbolicLinkFileFilter.INSTANCE;
+    }
+
+    public IOFileFilter notSymbolLink() {
+        return not(symbolLink());
     }
 }

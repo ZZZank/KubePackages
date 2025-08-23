@@ -17,6 +17,9 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.meta.PackageMetadata;
+import zank.mods.kube_packages.bridge.kubejs.binding.PathFilterHelper;
+import zank.mods.kube_packages.bridge.kubejs.toml.MetadataToModsToml;
+import zank.mods.kube_packages.bridge.kubejs.toml.SimulatedModsToml;
 import zank.mods.kube_packages.utils.CodecUtil;
 import zank.mods.kube_packages.utils.DirCopyVisitor;
 import zank.mods.kube_packages.utils.GameUtil;
@@ -68,7 +71,6 @@ public class PackageExporter {
             () -> {
                 try {
                     this.run();
-                    report(Component.literal("Package exported to: " + KubeJSPaths.EXPORT));
                 } catch (IOException e) {
                     report(Component.literal("Error when exporting packages: ")
                         .withStyle(ChatFormatting.RED)
@@ -239,7 +241,7 @@ public class PackageExporter {
 
         var manifest = new Manifest();
         var attributes = manifest.getMainAttributes();
-        Map.<String, String>of(
+        Map.of(
             "Specification-Title", metadata.id(),
             "Specification-Vendor", String.join(", ", metadata.authors()),
             "Specification-Version", "1",
@@ -248,6 +250,7 @@ public class PackageExporter {
             "Implementation-Vendor", String.join(", ", metadata.authors()),
             "Implementation-Timestamp", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").format(new Date())
         ).forEach(attributes::putValue);
+
         return new JarOutputStream(rawOut, manifest);
     }
 

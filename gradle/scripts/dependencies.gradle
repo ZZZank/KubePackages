@@ -46,6 +46,9 @@ dependencies {
     // 5.2.3
     modRuntimeOnly("curse.maven:probejs-legacy-956446:6773935")
 
+    // https://mvnrepository.com/artifact/com.demonwav.mcdev/annotations
+    compileOnly("com.demonwav.mcdev:annotations:2.1.0")
+
     // additional dependencies can be specified using loom's regular format
     // specifying a "mod" dependency (like modImplementation or modApi)
     // will cause loom to remap the file to your specified mappings
