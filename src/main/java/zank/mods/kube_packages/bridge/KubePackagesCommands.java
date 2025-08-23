@@ -15,12 +15,14 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.server.command.EnumArgument;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+import org.slf4j.event.Level;
 import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.KubePackageUtils;
 import zank.mods.kube_packages.api.meta.PackageMetadata;
 import zank.mods.kube_packages.bridge.kubejs.MetadataBuilderJS;
 import zank.mods.kube_packages.bridge.kubejs.PackageExporter;
 import zank.mods.kube_packages.bridge.kubejs.PackageExporter.ExportType;
+import zank.mods.kube_packages.impl.dependency.DependencyReport;
 import zank.mods.kube_packages.utils.CodecUtil;
 import zank.mods.kube_packages.utils.GameUtil;
 
@@ -85,7 +87,9 @@ public class KubePackagesCommands {
                     .executes(KubePackagesCommands::listPackages))
                 .then(Commands.literal("show")
                     .then(Commands.argument("id", StringArgumentType.string())
-                        .executes(KubePackagesCommands::showPackage))));
+                        .executes(KubePackagesCommands::showPackage)))
+                .then(Commands.literal("reload")
+                    .executes(KubePackagesCommands::reloadPackages)));
         dispatcher.register(command);
     }
 
@@ -101,7 +105,7 @@ public class KubePackagesCommands {
 
         var exportAs = cx.getArgument("exportAs", ExportType.class);
 
-        new PackageExporter(c -> reporter.accept(Component.literal("[KubePackages] ").kjs$blue().append(c)))
+        new PackageExporter(c -> reporter.accept(Component.empty().append(Component.literal("[KubePackages] ").kjs$blue()).append(c)))
             .debugMode(true)
             .metadata(metadata)
             .exportAs(exportAs)
@@ -115,9 +119,9 @@ public class KubePackagesCommands {
     private static int listPackages(CommandContext<CommandSourceStack> cx) throws CommandSyntaxException {
         var reporter = extractReporter(cx);
 
-        var packages = KubePackages.getPackages().values();
+        var packages = KubePackages.getPackages();
         reporter.accept(Component.translatable("Found %s packages: ", packages.size()));
-        for (var pkg : packages) {
+        for (var pkg : packages.values()) {
             var metaData = pkg.metadata();
             reporter.accept(Component.empty()
                 .append(Component.literal("- ").kjs$darkGray())
@@ -150,6 +154,25 @@ public class KubePackagesCommands {
             reporter.accept(text);
         }
 
+        return Command.SINGLE_SUCCESS;
+    }
+
+    private static int reloadPackages(CommandContext<CommandSourceStack> cx) throws CommandSyntaxException {
+        KubePackages.clearPackages();
+
+        var _reportHolder = new DependencyReport[1];
+        KubePackages.getPackages(report -> _reportHolder[0] = report);
+        var report = _reportHolder[0];
+
+        var msgSender = extractReporter(cx);
+
+        msgSender.accept(Component.translatable(
+            "Collected %s packages with %s, %s and %s",
+            Component.literal(String.valueOf(KubePackages.getPackages().size())).kjs$green(),
+            Component.translatable("%s error(s)", report.getReportsAt(Level.ERROR).size()).kjs$red(),
+            Component.translatable("%s warning(s)", report.getReportsAt(Level.WARN).size()).kjs$yellow(),
+            Component.translatable("%s info(s)", report.getReportsAt(Level.INFO).size()).kjs$blue()
+        ));
         return Command.SINGLE_SUCCESS;
     }
 
