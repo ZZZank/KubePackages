@@ -18,6 +18,7 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.meta.PackageMetadata;
 import zank.mods.kube_packages.utils.CodecUtil;
+import zank.mods.kube_packages.utils.DirCopyVisitor;
 import zank.mods.kube_packages.utils.GameUtil;
 
 import java.io.BufferedOutputStream;
@@ -156,15 +157,15 @@ public class PackageExporter {
             var target = ensureDir(root.resolve(directoryName));
 
             var counters = PathUtils.visitFileTree(
-                new CopyDirectoryVisitor(
+                new DirCopyVisitor(
                     Counters.longPathCounters(),
-                    getFilter(false, scriptType),
-                    getFilter(true, scriptType),
+                    getFilter(fileFilters, scriptType),
+                    getFilter(dirFilters, scriptType),
                     source,
                     target
                 ),
                 source
-            ).getPathCounters();
+            ).counters();
             debug(Component.translatable("Copied %s files for %s", counters.getFileCounter().get(), scriptType));
         }
 
@@ -174,22 +175,21 @@ public class PackageExporter {
             var target = ensureDir(root.resolve(directory));
 
             var counters = PathUtils.visitFileTree(
-                new CopyDirectoryVisitor(
+                new DirCopyVisitor(
                     Counters.longPathCounters(),
-                    getFilter(false, resourceType),
-                    getFilter(true, resourceType),
+                    getFilter(fileFilters, resourceType),
+                    getFilter(dirFilters, resourceType),
                     source,
                     target
                 ),
                 source
-            ).getPathCounters();
+            ).counters();
             debug(Component.translatable("Copied %s files for %s", counters.getFileCounter().get(), resourceType));
         }
     }
 
-    private PathFilter getFilter(boolean isDir, Enum<?> key) {
-        var map = isDir ? dirFilters : fileFilters;
-        var got = map.get(key);
+    private PathFilter getFilter(Map<Enum<?>, PathFilter> source, Enum<?> key) {
+        var got = source.get(key);
         return got == null ? FileFilterUtils.trueFileFilter() : got;
     }
 
