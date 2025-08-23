@@ -242,6 +242,7 @@ public class PackageExporter {
         var manifest = new Manifest();
         var attributes = manifest.getMainAttributes();
         Map.of(
+            "Manifest-Version", "1.0",
             "Specification-Title", metadata.id(),
             "Specification-Vendor", String.join(", ", metadata.authors()),
             "Specification-Version", "1",
