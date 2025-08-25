@@ -1,0 +1,17 @@
+{
+    "version": "1.0.0",
+    "authors": [
+        "Zank"
+    ],
+    "dependencies": [
+        {
+            "versionRange": "[1.0,)",
+            "reason": "Install this package to enable Debug Mode",
+            "type": "OPTIONAL",
+            "id": "debug_trigger"
+        }
+    ],
+    "id": "hand_over_your_items",
+    "name": "HandOverYourItems",
+    "description": "Give another player the item in your hand by Shift+Right Clicking the player"
+}

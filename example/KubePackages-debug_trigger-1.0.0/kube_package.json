@@ -1,0 +1,6 @@
+{
+    "version": "1.0.0",
+    "id": "debug_trigger",
+    "name": "DebugTrigger",
+    "description": "Example package for demonstrating the usage of cross package reference"
+}

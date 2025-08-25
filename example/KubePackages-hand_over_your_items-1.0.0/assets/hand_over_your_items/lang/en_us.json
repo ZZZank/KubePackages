@@ -1,0 +1,4 @@
+{
+    "chat.hand_over_your_items.sent": "You have given %s to %s",
+    "chat.hand_over_your_items.received": "You received %s from %s"
+}
