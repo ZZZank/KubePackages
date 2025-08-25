@@ -137,19 +137,19 @@ public class PackageExporter {
     }
 
     public void setScriptFileFilter(ScriptType type, Function<PathFilterHelper, IOFileFilter> toFilter) {
-        this.fileFilters.put(type, toFilter.apply(PathFilterHelper.INSTANCE));
+        this.fileFilters.put(type, toFilter.apply(PathFilterHelper.DEFAULT));
     }
 
     public void setScriptDirFilter(ScriptType type, Function<PathFilterHelper, IOFileFilter> toFilter) {
-        this.dirFilters.put(type, toFilter.apply(PathFilterHelper.INSTANCE));
+        this.dirFilters.put(type, toFilter.apply(PathFilterHelper.DEFAULT));
     }
 
     public void setAssetFileFilter(PackType type, Function<PathFilterHelper, IOFileFilter> toFilter) {
-        this.fileFilters.put(type, toFilter.apply(PathFilterHelper.INSTANCE));
+        this.fileFilters.put(type, toFilter.apply(PathFilterHelper.DEFAULT));
     }
 
     public void setAssetDirFilter(PackType type, Function<PathFilterHelper, IOFileFilter> toFilter) {
-        this.dirFilters.put(type, toFilter.apply(PathFilterHelper.INSTANCE));
+        this.dirFilters.put(type, toFilter.apply(PathFilterHelper.DEFAULT));
     }
 
     private void copyScriptAndAsset(Path root) throws IOException {

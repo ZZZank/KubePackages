@@ -1,47 +1,62 @@
 package zank.mods.kube_packages.bridge.kubejs.binding;
 
+import dev.latvian.mods.kubejs.typings.Info;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.SymbolicLinkFileFilter;
 
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.Map;
+
 /**
  * @author ZZZank
  */
 public class PathFilterHelper {
-    public static final PathFilterHelper INSTANCE = new PathFilterHelper();
+    public static final Map<IOCase, PathFilterHelper> BY_CASE;
+    public static final PathFilterHelper DEFAULT;
 
-    public IOFileFilter prefix(final String prefix, final IOCase ioCase) {
-        return FileFilterUtils.prefixFileFilter(prefix, ioCase);
+    static  {
+        var map = new EnumMap<IOCase, PathFilterHelper>(IOCase.class);
+        for (var ioCase : IOCase.values()) {
+            map.put(ioCase, new PathFilterHelper(ioCase));
+        }
+        BY_CASE = Collections.unmodifiableMap(map);
+        DEFAULT = BY_CASE.get(IOCase.SENSITIVE);
+    }
+
+    private final IOCase ioCase;
+
+    public PathFilterHelper(IOCase ioCase) {
+        this.ioCase = ioCase;
+    }
+
+    @Info("case sensitivity will affect filters matching file name/suffix/prefix/...")
+    public IOCase getCurrentCaseSensitivity() {
+        return ioCase;
+    }
+
+    @Info("get a new filter helper with specified case sensitivity")
+    public PathFilterHelper withCaseSensitivity(IOCase caseSensitivity) {
+        return BY_CASE.get(caseSensitivity);
     }
 
     public IOFileFilter prefix(final String prefix) {
-        return FileFilterUtils.prefixFileFilter(prefix);
-    }
-
-    public IOFileFilter suffix(final String suffix, final IOCase ioCase) {
-        return FileFilterUtils.suffixFileFilter(suffix, ioCase);
+        return FileFilterUtils.prefixFileFilter(prefix, ioCase);
     }
 
     public IOFileFilter suffix(final String suffix) {
-        return FileFilterUtils.suffixFileFilter(suffix);
+        return FileFilterUtils.suffixFileFilter(suffix, ioCase);
     }
 
     public IOFileFilter fileNameOneOf(String... names) {
-        return new NameFileFilter(names);
-    }
-
-    public IOFileFilter fileNameOneOf(IOCase ioCase, String... names) {
         return new NameFileFilter(names, ioCase);
     }
 
     public IOFileFilter fileNameNoneOf(String... names) {
         return not(fileNameOneOf(names));
-    }
-
-    public IOFileFilter fileNameNoneOf(IOCase ioCase, String... names) {
-        return not(fileNameOneOf(ioCase, names));
     }
 
     public IOFileFilter always() {
