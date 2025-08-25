@@ -44,7 +44,7 @@ dependencies {
     // ferritecore-6.0.1-forge
     modRuntimeOnly("curse.maven:ferritecore-429235:4810975")
     // 5.2.3
-    modRuntimeOnly("curse.maven:probejs-legacy-956446:6773935")
+    modImplementation("curse.maven:probejs-legacy-956446:6773935")
 
     // https://mvnrepository.com/artifact/com.demonwav.mcdev/annotations
     compileOnly("com.demonwav.mcdev:annotations:2.1.0")
