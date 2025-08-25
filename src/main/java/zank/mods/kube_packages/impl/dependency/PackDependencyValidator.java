@@ -71,12 +71,13 @@ public class PackDependencyValidator {
             case REQUIRED, OPTIONAL, RECOMMENDED -> {
                 if (!targetPresent) {
                     // required but not found
-                    report.addReport(type.logLevel, dependency.toReport(pack).append(", but ContentPack with such id is not present"));
+                    report.addReport(type.logLevel, dependency.toReport(pack)
+                        .append(", but package with such id is not present"));
                 } else if (dependency.versionRange().isPresent()) {
                     if (!dependency.versionRange().get().containsVersion(targetVersion)) {
                         // specific version but not matched
                         report.addReport(type.logLevel, dependency.toReport(pack)
-                            .append(", but ContentPack with such id is at version '%s'".formatted(targetVersion)));
+                            .append(", but package with such id is at version '%s'".formatted(targetVersion)));
                     }
                 }
             }
@@ -87,11 +88,11 @@ public class PackDependencyValidator {
                 if (dependency.versionRange().isEmpty()) {
                     // any version not allowed
                     report.addReport(type.logLevel, dependency.toReport(pack)
-                        .append(", but a package with such id exists"));
+                        .append(", but package with such id is missing"));
                 } else if (dependency.versionRange().get().containsVersion(targetVersion)) {
                     // excluded version
                     report.addReport(type.logLevel, dependency.toReport(pack)
-                        .append(", but a package with such id is at version '%s'".formatted(targetVersion)));
+                        .append(", but package with such id is at version '%s'".formatted(targetVersion)));
                 }
             }
         }

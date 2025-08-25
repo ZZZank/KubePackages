@@ -51,7 +51,7 @@ public class GameUtil {
     }
 
     public static boolean isInGameFolder(Path path) {
-        return path.toAbsolutePath().startsWith(FMLPaths.GAMEDIR.get());
+        return path.normalize().toAbsolutePath().startsWith(FMLPaths.GAMEDIR.get());
     }
 
     public static Optional<IModInfo> findModInfo(String modId) {

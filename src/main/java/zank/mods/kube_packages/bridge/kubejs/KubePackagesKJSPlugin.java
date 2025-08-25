@@ -51,7 +51,7 @@ public class KubePackagesKJSPlugin extends KubeJSPlugin {
 
     @Override
     public void init() {
-        //path
+        // path
         KubePackages.registerProvider(new DirKubePackageProvider(KubePackagePaths.PACKAGES));
         // zip
         KubePackages.registerProvider(new ZipKubePackageProvider(KubePackagePaths.PACKAGES));

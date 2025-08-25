@@ -42,14 +42,14 @@ public interface PackageDependency {
 
     default MutableComponent toReport(KubePackage parent) {
         return Component.translatable(
-            "%s declared %s %s dependency with id '%s' and version range '%s'%s",
-            Component.literal(parent.toString()).withStyle(ChatFormatting.YELLOW, ChatFormatting.UNDERLINE),
+            "%s declared %s %s dependency '%s' at version range '%s'%s",
+            Component.literal(parent.id()).withStyle(ChatFormatting.GREEN, ChatFormatting.UNDERLINE),
             Component.literal(this.type().toString()),
             Component.literal(this.source().toString()),
-            Component.literal(this.id()).withStyle(ChatFormatting.YELLOW),
+            Component.literal(this.id()).withStyle(ChatFormatting.GREEN),
             Component.literal(this.versionRange().map(VersionRange::toString).orElse("*"))
-                .withStyle(ChatFormatting.YELLOW),
-            Component.literal(reason().map(", for reason '%s'"::formatted).orElse(""))
+                .withStyle(ChatFormatting.GREEN),
+            reason().isPresent() ? Component.translatable(", for reason '%s'", Component.literal(reason().get()).withStyle(ChatFormatting.GREEN)) : Component.empty()
         );
     }
 

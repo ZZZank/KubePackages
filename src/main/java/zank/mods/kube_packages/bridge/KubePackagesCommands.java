@@ -109,11 +109,10 @@ public class KubePackagesCommands {
     private static int report(CommandContext<CommandSourceStack> cx, Level level) throws CommandSyntaxException {
         var reporter = extractReporter(cx);
         var reports = KubePackages.getPackageLoadReport().getReportsAt(level);
-        var color = GameUtil.logColor(level);
 
         reporter.accept(getReportTitle("%s " + level + ':', level));
         for (var report : reports) {
-            reporter.accept(Component.literal("- ").append(Component.literal(report.getString()).withStyle(color)));
+            reporter.accept(Component.literal("- ").append(report));
         }
 
         return Command.SINGLE_SUCCESS;
@@ -205,7 +204,7 @@ public class KubePackagesCommands {
 
     private static Component getReportTitle(String format, Level level) {
         var report = KubePackages.getPackageLoadReport();
-        return Component.translatable(format, report.getReportsAt(Level.INFO).size())
+        return Component.translatable(format, report.getReportsAt(level).size())
             .kjs$underlined()
             .withStyle(GameUtil.logColor(level))
             .kjs$hover(Component.literal("/kpkg report " + GameUtil.logKey(level)))

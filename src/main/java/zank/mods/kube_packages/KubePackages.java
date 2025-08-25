@@ -46,7 +46,7 @@ public class KubePackages {
         return Collections.unmodifiableList(PROVIDERS);
     }
 
-    public static DependencyReport ensurePackagesLoaded() {
+    private static DependencyReport ensurePackagesLoaded() {
         if (cachedPackages != null) {
             return null;
         }
