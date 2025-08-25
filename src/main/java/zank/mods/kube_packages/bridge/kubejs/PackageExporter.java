@@ -136,20 +136,32 @@ public class PackageExporter {
         return path;
     }
 
-    public void setScriptFileFilter(ScriptType type, Function<PathFilterHelper, IOFileFilter> toFilter) {
-        this.fileFilters.put(type, toFilter.apply(PathFilterHelper.DEFAULT));
+    public PackageExporter filterScriptFile(ScriptType[] target, Function<PathFilterHelper, IOFileFilter> fileFilter) {
+        return addFilterImpl(this.fileFilters, target, fileFilter);
     }
 
-    public void setScriptDirFilter(ScriptType type, Function<PathFilterHelper, IOFileFilter> toFilter) {
-        this.dirFilters.put(type, toFilter.apply(PathFilterHelper.DEFAULT));
+    public PackageExporter filterScriptDir(ScriptType[] target, Function<PathFilterHelper, IOFileFilter> dirFilter) {
+        return addFilterImpl(this.dirFilters, target, dirFilter);
     }
 
-    public void setAssetFileFilter(PackType type, Function<PathFilterHelper, IOFileFilter> toFilter) {
-        this.fileFilters.put(type, toFilter.apply(PathFilterHelper.DEFAULT));
+    public PackageExporter filterResourceFile(PackType[] target, Function<PathFilterHelper, IOFileFilter> fileFilter) {
+        return addFilterImpl(this.fileFilters, target, fileFilter);
     }
 
-    public void setAssetDirFilter(PackType type, Function<PathFilterHelper, IOFileFilter> toFilter) {
-        this.dirFilters.put(type, toFilter.apply(PathFilterHelper.DEFAULT));
+    public PackageExporter filterResourceDir(PackType[] target, Function<PathFilterHelper, IOFileFilter> dirFilter) {
+        return addFilterImpl(this.dirFilters, target, dirFilter);
+    }
+
+    private PackageExporter addFilterImpl(
+        Map<Enum<?>, PathFilter> map,
+        Enum<?>[] types,
+        Function<PathFilterHelper, IOFileFilter> filterGen
+    ) {
+        var filter = filterGen.apply(PathFilterHelper.DEFAULT);
+        for (var type : types) {
+            map.put(type, filter);
+        }
+        return this;
     }
 
     private void copyScriptAndAsset(Path root) throws IOException {
