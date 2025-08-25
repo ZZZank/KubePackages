@@ -59,10 +59,14 @@ public class PathFilterHelper {
         return not(fileNameOneOf(names));
     }
 
+    @Info("""
+        Accept all files""")
     public IOFileFilter always() {
         return FileFilterUtils.trueFileFilter();
     }
 
+    @Info("""
+        Deny all files""")
     public IOFileFilter never() {
         return FileFilterUtils.falseFileFilter();
     }

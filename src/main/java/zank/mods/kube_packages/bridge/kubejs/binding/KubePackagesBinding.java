@@ -40,11 +40,11 @@ public class KubePackagesBinding {
         this.sharedData = new KubePackagesSharedData(type);
     }
 
-    public MetadataBuilderJS metaDataBuilder() {
+    public MetadataBuilderJS metadataBuilder() {
         return new MetadataBuilderJS();
     }
 
-    public PackageMetadata metaDataMinimal(String id, ArtifactVersion version) {
+    public PackageMetadata metadataMinimal(String id, ArtifactVersion version) {
         return PackageMetadata.minimal(id, version);
     }
 

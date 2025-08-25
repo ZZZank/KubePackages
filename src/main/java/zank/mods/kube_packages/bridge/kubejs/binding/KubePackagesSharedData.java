@@ -23,7 +23,7 @@ public record KubePackagesSharedData(ScriptType scriptType) {
     @Info("""
         Put value into KubePackage shared data for **current** script type
         
-        @see {@link type} Current script type
+        @see {@link scriptType} Current script type
         @see {@link getAllSharedFor} View KubePackage shared data for another script type.""")
     public void put(String id, Object o) {
         TYPED_GLOBALS.get(scriptType).put(id, o);
@@ -32,7 +32,7 @@ public record KubePackagesSharedData(ScriptType scriptType) {
     @Info("""
         Get KubePackage shared data for **current** script type
         
-        @see {@link type} Current script type
+        @see {@link scriptType} Current script type
         @see {@link getAlSharedFor} View KubePackage shared data for another script type.""")
     public Object get(String id) {
         return getForType(this.scriptType, id);
@@ -41,7 +41,7 @@ public record KubePackagesSharedData(ScriptType scriptType) {
     @Info("""
         Get KubePackage shared data for specified script type
         
-        @see {@link type} Current script type
+        @see {@link scriptType} Current script type
         @see {@link getAlSharedFor} View KubePackage shared data for another script type.""")
     public Object getForType(ScriptType type, String id) {
         return getAllForType(type).get(id);
@@ -52,7 +52,7 @@ public record KubePackagesSharedData(ScriptType scriptType) {
         
         The return value is **immutable**, which means you can't put value into it
         
-        @see {@link type} Current script type
+        @see {@link scriptType} Current script type
         @see {@link getAllSharedFor} View KubePackage shared data for another script type.""")
     public Map<String, Object> getAll() {
         return getAllForType(scriptType);

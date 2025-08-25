@@ -110,7 +110,7 @@ public class PackageExporter {
             writeModInfos(copyTo);
             sealAsCompressedFile(copyTo, ".jar");
         }
-        reporter.accept(Component.literal("Successfully exported: " + this.exportName));
+        report(Component.literal("Successfully exported: " + this.exportName));
     }
 
     private void report(Component message) {
