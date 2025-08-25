@@ -1,6 +1,7 @@
 package zank.mods.kube_packages.utils;
 
 import dev.latvian.mods.kubejs.script.ScriptType;
+import net.minecraft.ChatFormatting;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -8,6 +9,7 @@ import net.minecraftforge.forgespi.language.IModFileInfo;
 import net.minecraftforge.forgespi.language.IModInfo;
 import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
 import org.apache.maven.artifact.versioning.VersionRange;
+import org.slf4j.event.Level;
 
 import java.nio.file.Path;
 import java.util.Optional;
@@ -60,5 +62,24 @@ public class GameUtil {
 
     public static IModInfo findModInfoOrThrow(String modId) {
         return findModInfo(modId).orElseThrow(() -> new IllegalArgumentException("Cannot find mod with id: " + modId));
+    }
+
+    public static ChatFormatting logColor(Level level) {
+        return switch (level) {
+            case ERROR -> ChatFormatting.RED;
+            case WARN -> ChatFormatting.YELLOW;
+            case INFO -> ChatFormatting.BLUE;
+            case DEBUG, TRACE -> ChatFormatting.GRAY;
+        };
+    }
+
+    public static String logKey(Level level) {
+        return switch (level) {
+            case ERROR -> "error";
+            case WARN -> "warning";
+            case INFO -> "info";
+            case DEBUG -> "debug";
+            case TRACE -> "trace";
+        };
     }
 }

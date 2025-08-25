@@ -4,6 +4,7 @@ import net.minecraft.network.chat.Component;
 import org.slf4j.event.Level;
 
 import java.util.*;
+import java.util.function.BiConsumer;
 
 /**
  * @author ZZZank
@@ -33,5 +34,15 @@ public class DependencyReport {
 
     public void addError(Component error) {
         addReport(Level.ERROR, error);
+    }
+
+    public void forEach(BiConsumer<Level, Component> action) {
+        Objects.requireNonNull(action, "action == null");
+        for (var entry : this.reports.entrySet()) {
+            var level = entry.getKey();
+            for (var text : entry.getValue()) {
+                action.accept(level, text);
+            }
+        }
     }
 }

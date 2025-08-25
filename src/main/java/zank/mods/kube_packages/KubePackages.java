@@ -1,21 +1,17 @@
 package zank.mods.kube_packages;
 
 import com.google.gson.Gson;
-import net.minecraft.network.chat.Component;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.event.Level;
 import zank.mods.kube_packages.api.KubePackage;
 import zank.mods.kube_packages.api.KubePackageProvider;
 import zank.mods.kube_packages.impl.dependency.DependencyReport;
 import zank.mods.kube_packages.impl.dependency.PackDependencyValidator;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * @author ZZZank
@@ -33,6 +29,7 @@ public class KubePackages {
 
     private static final List<KubePackageProvider> PROVIDERS = new ArrayList<>();
     private static volatile Map<String, KubePackage> cachedPackages = null;
+    private static DependencyReport cachedReport = null;
 
     public static void registerProvider(KubePackageProvider provider) {
         PROVIDERS.add(Objects.requireNonNull(provider));
@@ -42,48 +39,38 @@ public class KubePackages {
         return Collections.unmodifiableList(PROVIDERS);
     }
 
-    public static Map<String, KubePackage> getPackages(BiConsumer<Level, Component> perReportConsumer) {
-        Objects.requireNonNull(perReportConsumer);
-        return getPackages(reports -> {
-            for (var entry : reports.viewAllReports().entrySet()) {
-                var level = entry.getKey();
-                for (var text : entry.getValue()) {
-                    perReportConsumer.accept(level, text);
-                }
-            }
-        });
-    }
-
-    public static synchronized Map<String, KubePackage> getPackages(Consumer<DependencyReport> reportsConsumer) {
-        if (cachedPackages == null) {
-            var provided = PROVIDERS.stream()
-                .map(KubePackageProvider::provide)
-                .flatMap(Collection::stream)
-                .toList();
-
-            var validator = new PackDependencyValidator(PackDependencyValidator.DupeHandling.ERROR);
-            validator.validate(provided);
-            var report = validator.report();
-            reportsConsumer.accept(report);
-
-            cachedPackages = Collections.unmodifiableMap(validator.indexed());
-            LOGGER.info(
-                "Collected {} packages with {} errors, {} warnings and {} infos: {}",
-                cachedPackages.size(),
-                report.getReportsAt(Level.ERROR).size(),
-                report.getReportsAt(Level.WARN).size(),
-                report.getReportsAt(Level.INFO).size(),
-                cachedPackages.values()
-            );
+    public static DependencyReport ensurePackagesLoaded() {
+        if (cachedPackages != null) {
+            return null;
         }
-        return cachedPackages;
+        var provided = PROVIDERS.stream()
+            .map(KubePackageProvider::provide)
+            .flatMap(Collection::stream)
+            .toList();
+
+        var validator = new PackDependencyValidator(PackDependencyValidator.DupeHandling.ERROR);
+        validator.validate(provided);
+        var report = validator.report();
+
+        cachedPackages = Collections.unmodifiableMap(validator.indexed());
+        cachedReport = report;
+        return report;
     }
 
     public static Map<String, KubePackage> getPackages() {
-        return getPackages((level, text) -> KubePackages.LOGGER.atLevel(level).log(text.getString()));
+        ensurePackagesLoaded();
+        return cachedPackages;
+    }
+
+    public static DependencyReport getPackageLoadReport() {
+        if (cachedPackages == null) {
+            throw new IllegalStateException(".getPackageLoadReport() called before packages are collected via .getPackages()");
+        }
+        return cachedReport;
     }
 
     public static void clearPackages() {
         cachedPackages = null;
+        cachedReport = null;
     }
 }

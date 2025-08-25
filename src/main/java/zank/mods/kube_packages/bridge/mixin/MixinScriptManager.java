@@ -1,5 +1,6 @@
 package zank.mods.kube_packages.bridge.mixin;
 
+import org.slf4j.event.Level;
 import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.ScriptLoadContext;
 import zank.mods.kube_packages.api.inject.ScriptPackLoadHelper;
@@ -15,7 +16,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 @Mixin(value = ScriptManager.class, remap = false)
@@ -29,19 +29,27 @@ public abstract class MixinScriptManager implements ScriptPackLoadHelper {
         var context = new ScriptLoadContext((ScriptManager) (Object) this);
         var console = context.console();
 
-        var hasError = new AtomicBoolean(false);
-        var packages = KubePackages.getPackages((level, text) -> {
+        var packages = KubePackages.getPackages();
+
+        var report = KubePackages.getPackageLoadReport();
+
+        console.info(String.format(
+            "Found %s packages with %s error(s), %s warning(s) and %s info(s): %s",
+            packages.size(),
+            report.getReportsAt(Level.ERROR).size(),
+            report.getReportsAt(Level.WARN).size(),
+            report.getReportsAt(Level.INFO).size(),
+            packages.values()
+        ));
+        report.forEach((level, text) -> {
             switch (level) {
-                case ERROR -> {
-                    hasError.set(true);
-                    console.error(text.getString());
-                }
+                case ERROR -> console.error(text.getString());
                 case WARN -> console.warn(text.getString());
                 case INFO -> console.info(text.getString());
             }
         });
 
-        if (hasError.get()) {
+        if (!report.getReportsAt(Level.ERROR).isEmpty()) {
             console.error("KubePackages found error when loading packages, ignoring all installed packages");
             return original.values();
         }

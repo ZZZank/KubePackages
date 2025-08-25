@@ -22,7 +22,6 @@ import zank.mods.kube_packages.api.meta.PackageMetadata;
 import zank.mods.kube_packages.bridge.kubejs.binding.MetadataBuilderJS;
 import zank.mods.kube_packages.bridge.kubejs.PackageExporter;
 import zank.mods.kube_packages.bridge.kubejs.PackageExporter.ExportType;
-import zank.mods.kube_packages.impl.dependency.DependencyReport;
 import zank.mods.kube_packages.utils.CodecUtil;
 import zank.mods.kube_packages.utils.GameUtil;
 
@@ -37,17 +36,17 @@ import java.util.function.Predicate;
 @Mod.EventBusSubscriber
 public class KubePackagesCommands {
 
+    public static final Predicate<CommandSourceStack> SP_OR_OP = source -> source.getServer().isSingleplayer()
+        || source.hasPermission(Commands.LEVEL_GAMEMASTERS);
+
     @SubscribeEvent
     public static void registerCommands(RegisterCommandsEvent event) {
-        var spOrOp =
-            (Predicate<CommandSourceStack>) source -> source.getServer().isSingleplayer()
-                || source.hasPermission(Commands.LEVEL_GAMEMASTERS);
 
         var dispatcher = event.getDispatcher();
 
         var command = Commands.literal("kpkg")
             .then(Commands.literal("export")
-                .requires(spOrOp)
+                .requires(SP_OR_OP)
                 .then(Commands.argument("exportAs", EnumArgument.enumArgument(ExportType.class))
                     .then(Commands.literal("fileMetadata")
                         .then(Commands.argument("pathToMetadata", StringArgumentType.string())
@@ -89,8 +88,35 @@ public class KubePackagesCommands {
                     .then(Commands.argument("id", StringArgumentType.string())
                         .executes(KubePackagesCommands::showPackage)))
                 .then(Commands.literal("reload")
-                    .executes(KubePackagesCommands::reloadPackages)));
+                    .executes(KubePackagesCommands::reloadPackages)))
+            .then(Commands.literal("report")
+                .then(Commands.literal("error")
+                    .executes(cx -> report(cx, Level.ERROR)))
+                .then(Commands.literal("warning")
+                    .executes(cx -> report(cx, Level.WARN)))
+                .then(Commands.literal("info")
+                    .executes(cx -> report(cx, Level.INFO)))
+                .executes(cx -> {
+                    for (var level : new Level[]{Level.ERROR, Level.WARN, Level.INFO}) {
+                        report(cx, level);
+                    }
+                    return Command.SINGLE_SUCCESS;
+                })
+            );
         dispatcher.register(command);
+    }
+
+    private static int report(CommandContext<CommandSourceStack> cx, Level level) throws CommandSyntaxException {
+        var reporter = extractReporter(cx);
+        var reports = KubePackages.getPackageLoadReport().getReportsAt(level);
+        var color = GameUtil.logColor(level);
+
+        reporter.accept(getReportTitle("%s " + level + ':', level));
+        for (var report : reports) {
+            reporter.accept(Component.literal("- ").append(Component.literal(report.getString()).withStyle(color)));
+        }
+
+        return Command.SINGLE_SUCCESS;
     }
 
     private static Component prettyPrintMetadata(PackageMetadata metaData) {
@@ -105,7 +131,10 @@ public class KubePackagesCommands {
 
         var exportAs = cx.getArgument("exportAs", ExportType.class);
 
-        new PackageExporter(c -> reporter.accept(Component.empty().append(Component.literal("[KubePackages] ").kjs$blue()).append(c)))
+        new PackageExporter(c -> reporter.accept(Component.empty()
+            .append(Component.literal("[KubePackages] ").kjs$blue())
+            .append(c))
+        )
             .debugMode(true)
             .metadata(metadata)
             .exportAs(exportAs)
@@ -160,24 +189,31 @@ public class KubePackagesCommands {
     private static int reloadPackages(CommandContext<CommandSourceStack> cx) throws CommandSyntaxException {
         KubePackages.clearPackages();
 
-        var _reportHolder = new DependencyReport[1];
-        KubePackages.getPackages(report -> _reportHolder[0] = report);
-        var report = _reportHolder[0];
+        KubePackages.getPackages();
 
         var msgSender = extractReporter(cx);
 
         msgSender.accept(Component.translatable(
             "Collected %s packages with %s, %s and %s",
             Component.literal(String.valueOf(KubePackages.getPackages().size())).kjs$green(),
-            Component.translatable("%s error(s)", report.getReportsAt(Level.ERROR).size()).kjs$red(),
-            Component.translatable("%s warning(s)", report.getReportsAt(Level.WARN).size()).kjs$yellow(),
-            Component.translatable("%s info(s)", report.getReportsAt(Level.INFO).size()).kjs$blue()
+            getReportTitle("%s error(s)", Level.ERROR),
+            getReportTitle("%s warning(s)", Level.WARN),
+            getReportTitle("%s info(s)", Level.INFO)
         ));
         return Command.SINGLE_SUCCESS;
     }
 
+    private static Component getReportTitle(String format, Level level) {
+        var report = KubePackages.getPackageLoadReport();
+        return Component.translatable(format, report.getReportsAt(Level.INFO).size())
+            .kjs$underlined()
+            .withStyle(GameUtil.logColor(level))
+            .kjs$hover(Component.literal("/kpkg report " + GameUtil.logKey(level)))
+            .kjs$clickSuggestCommand("/kpkg report " + GameUtil.logKey(level));
+    }
+
     private static Consumer<Component> extractReporter(CommandContext<CommandSourceStack> cx)
         throws CommandSyntaxException {
-        return cx.getSource().getPlayerOrException()::sendSystemMessage;
+        return cx.getSource()::sendSystemMessage;
     }
 }
