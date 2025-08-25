@@ -55,7 +55,7 @@ public class PackageExporter {
     private ExportType exportAs;
     private PackageMetadata metadata;
     private Consumer<SimulatedModsToml> modInfoModifier;
-    private boolean debugMode;
+    private boolean silent = false;
 
     @Getter(AccessLevel.NONE)
     private final Map<Enum<?>, PathFilter> fileFilters = new HashMap<>();
@@ -110,6 +110,7 @@ public class PackageExporter {
             writeModInfos(copyTo);
             sealAsCompressedFile(copyTo, ".jar");
         }
+        reporter.accept(Component.literal("Successfully exported: " + this.exportName));
     }
 
     private void report(Component message) {
@@ -124,7 +125,7 @@ public class PackageExporter {
     }
 
     private void debug(Component message) {
-        if (this.debugMode) {
+        if (!this.silent) {
             report(message);
         }
     }

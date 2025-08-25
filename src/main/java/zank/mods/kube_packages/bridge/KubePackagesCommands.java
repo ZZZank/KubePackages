@@ -135,7 +135,7 @@ public class KubePackagesCommands {
             .append(Component.literal("[KubePackages] ").kjs$blue())
             .append(c))
         )
-            .debugMode(true)
+            .silent(true)
             .metadata(metadata)
             .exportAs(exportAs)
             .runAsync();
