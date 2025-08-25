@@ -1,6 +1,7 @@
 package zank.mods.kube_packages;
 
 import com.google.gson.Gson;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -8,8 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import zank.mods.kube_packages.api.KubePackage;
 import zank.mods.kube_packages.api.KubePackageProvider;
+import zank.mods.kube_packages.bridge.probejs.KubePackagesPJSLPlugin;
 import zank.mods.kube_packages.impl.dependency.DependencyReport;
 import zank.mods.kube_packages.impl.dependency.PackDependencyValidator;
+import zzzank.probejs.plugin.ProbeJSPlugins;
 
 import java.util.*;
 
@@ -25,6 +28,10 @@ public class KubePackages {
 
     public KubePackages() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, KubePackagesConfig.INSTANCE);
+
+        if (ModList.get().isLoaded("probejs_legacy")) {
+            ProbeJSPlugins.register(new KubePackagesPJSLPlugin());
+        }
     }
 
     private static final List<KubePackageProvider> PROVIDERS = new ArrayList<>();

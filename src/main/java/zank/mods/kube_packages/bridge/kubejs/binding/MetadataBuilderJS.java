@@ -1,6 +1,7 @@
 package zank.mods.kube_packages.bridge.kubejs.binding;
 
 import com.mojang.serialization.JsonOps;
+import dev.latvian.mods.kubejs.typings.Info;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -26,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Setter
 @Accessors(fluent = true, chain = true)
 public class MetadataBuilderJS {
+    public static final Map<String, PackageMetadata> COMMAND_CACHE = new ConcurrentHashMap<>();
 
     private String id;
     private String name = null;
@@ -35,6 +37,7 @@ public class MetadataBuilderJS {
     private List<String> authors = List.of();
     private List<PackageDependency> dependencies = List.of();
 
+    @Info("build Metadata for exporting package via JS binding (`KubePackages.packageExporter()`)")
     public PackageMetadata build() {
         return new ImmutableMetadata(
             id,
@@ -47,8 +50,7 @@ public class MetadataBuilderJS {
         );
     }
 
-    public static final Map<String, PackageMetadata> COMMAND_CACHE = new ConcurrentHashMap<>();
-
+    @Info("build Metadata and write to a file for exporting package via command (`/kpkg export fileMetadata <path_to_your_metadata_file>`)")
     public void buildAndWriteTo(String path) throws IOException {
         try (var writer = Files.newBufferedWriter(GameUtil.resolveSafe(path))) {
             var built = build();
@@ -61,6 +63,7 @@ public class MetadataBuilderJS {
         }
     }
 
+    @Info("build Metadata and push to a temporary cache for exporting package command (`/kpkg export cacheMetadata <id_of_your_metadata>`)")
     public void buildAndPushToCache() {
         var built = build();
         COMMAND_CACHE.put(built.id(), built);
