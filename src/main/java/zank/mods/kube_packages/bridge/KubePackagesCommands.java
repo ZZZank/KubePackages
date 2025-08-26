@@ -86,6 +86,10 @@ public class KubePackagesCommands {
                     .executes(KubePackagesCommands::listPackages))
                 .then(Commands.literal("show")
                     .then(Commands.argument("id", StringArgumentType.string())
+                        .suggests((cx, builder) -> SharedSuggestionProvider.suggest(
+                            KubePackages.getPackages().keySet(),
+                            builder
+                        ))
                         .executes(KubePackagesCommands::showPackage)))
                 .then(Commands.literal("reload")
                     .executes(KubePackagesCommands::reloadPackages)))
