@@ -58,6 +58,13 @@ public class ZipKubePackage extends KubePackageBase {
 
     @Override
     public void getResource(PackType type, Consumer<Pack> packLoader) {
+        try (var zipFile = new ZipFile(path.toFile())) {
+            if (zipFile.getEntry(type.getDirectory() + '/') == null) {
+                return;
+            }
+        } catch (IOException e) {
+            return;
+        }
         var pack = AssetUtil.packForPackage(
             this,
             Component.literal(toString()),
