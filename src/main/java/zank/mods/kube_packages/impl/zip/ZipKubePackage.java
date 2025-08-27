@@ -1,9 +1,8 @@
 package zank.mods.kube_packages.impl.zip;
 
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.packs.FilePackResources;
+import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.repository.Pack;
 import zank.mods.kube_packages.api.KubePackageUtils;
 import zank.mods.kube_packages.api.ScriptLoadContext;
 import zank.mods.kube_packages.api.meta.PackageMetadata;
@@ -12,14 +11,12 @@ import dev.latvian.mods.kubejs.script.ScriptFileInfo;
 import dev.latvian.mods.kubejs.script.ScriptPack;
 import dev.latvian.mods.kubejs.script.ScriptSource;
 import org.jetbrains.annotations.Nullable;
-import zank.mods.kube_packages.utils.AssetUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.function.Consumer;
 import java.util.zip.ZipFile;
 
 public class ZipKubePackage extends KubePackageBase {
@@ -44,7 +41,9 @@ public class ZipKubePackage extends KubePackageBase {
                     var zipFileInfo = new ScriptFileInfo(pack.info, zipEntry.getName().substring(prefix.length()));
                     var scriptSource = (ScriptSource) info -> {
                         var reader = new BufferedReader(new InputStreamReader(
-                            zipFile.getInputStream(zipEntry), StandardCharsets.UTF_8));
+                            zipFile.getInputStream(zipEntry),
+                            StandardCharsets.UTF_8
+                        ));
                         return reader.lines().toList();
                     };
                     context.loadFileIntoPack(pack, zipFileInfo, scriptSource);
@@ -57,22 +56,8 @@ public class ZipKubePackage extends KubePackageBase {
     }
 
     @Override
-    public void getResource(PackType type, Consumer<Pack> packLoader) {
-        try (var zipFile = new ZipFile(path.toFile())) {
-            if (zipFile.getEntry(type.getDirectory() + '/') == null) {
-                return;
-            }
-        } catch (IOException e) {
-            return;
-        }
-        var pack = AssetUtil.packForPackage(
-            this,
-            Component.literal(toString()),
-            Component.literal("Resource collected by " + toString()),
-            type,
-            name -> new FilePackResources(name, this.path.toFile(), false)
-        );
-        packLoader.accept(pack);
+    public @Nullable PackResources getResource(PackType type) {
+        return new FilePackResources(id(), path.toFile(), false);
     }
 
     @Override

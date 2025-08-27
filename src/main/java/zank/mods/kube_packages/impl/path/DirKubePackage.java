@@ -1,9 +1,8 @@
 package zank.mods.kube_packages.impl.path;
 
-import net.minecraft.network.chat.Component;
+import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.PathPackResources;
-import net.minecraft.server.packs.repository.Pack;
 import zank.mods.kube_packages.KubePackages;
 import zank.mods.kube_packages.api.KubePackage;
 import zank.mods.kube_packages.api.KubePackageUtils;
@@ -13,11 +12,9 @@ import dev.latvian.mods.kubejs.KubeJS;
 import dev.latvian.mods.kubejs.script.ScriptPack;
 import dev.latvian.mods.kubejs.script.ScriptSource;
 import org.jetbrains.annotations.Nullable;
-import zank.mods.kube_packages.utils.AssetUtil;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.function.Consumer;
 
 /**
  * @author ZZZank
@@ -65,19 +62,8 @@ public class DirKubePackage implements KubePackage {
     }
 
     @Override
-    public void getResource(PackType type, Consumer<Pack> packLoader) {
-        var path = this.base.resolve(type.getDirectory());
-        if (!Files.exists(path) || !Files.isDirectory(path)) {
-            return;
-        }
-        var pack = AssetUtil.packForPackage(
-            this,
-            Component.literal(toString()),
-            Component.literal("Resource collected by " + toString()),
-            type,
-            name -> new PathPackResources(name, this.base, false)
-        );
-        packLoader.accept(pack);
+    public @Nullable PackResources getResource(PackType type) {
+        return new PathPackResources(id(), this.base, false);
     }
 
     @Override

@@ -1,7 +1,10 @@
 package zank.mods.kube_packages.utils;
 
+import com.google.common.base.Suppliers;
 import dev.latvian.mods.kubejs.script.ScriptType;
 import net.minecraft.ChatFormatting;
+import net.minecraft.SharedConstants;
+import net.minecraft.server.packs.PackType;
 import net.minecraftforge.fml.ModContainer;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -13,12 +16,19 @@ import org.slf4j.event.Level;
 
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
  * @author ZZZank
  */
 public class GameUtil {
+
+    public static final Supplier<Integer> RESOURCE_PACK_VERSION =
+        Suppliers.memoize(() -> SharedConstants.getCurrentVersion().getPackVersion(PackType.CLIENT_RESOURCES));
+
+    public static final Supplier<Integer> DATA_PACK_VERSION =
+        Suppliers.memoize(() -> SharedConstants.getCurrentVersion().getPackVersion(PackType.SERVER_DATA));
 
     public static String toFolderName(ScriptType scriptType) {
         return scriptType.name + "_scripts";
